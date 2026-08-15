@@ -1,10 +1,13 @@
 # Kontrak API (API Contract) - Frontend & Backend
+
 Proyek: Website Sistem Informasi PCM Berbah
 
 Dokumen ini adalah kesepakatan struktur data (JSON) yang akan digunakan untuk komunikasi antara Frontend (Vue/Nuxt) dan Backend (Express/MongoDB). Tim Backend **WAJIB** mengikuti struktur respons ini agar Frontend tidak mengalami error saat integrasi.
 
 ## 1. Format Respons Standar (Wajib untuk semua API)
-Setiap kali Backend membalas *request*, format wajibnya adalah seperti ini:
+
+Setiap kali Backend membalas _request_, format wajibnya adalah seperti ini:
+
 ```json
 {
   "success": true,
@@ -14,15 +17,19 @@ Setiap kali Backend membalas *request*, format wajibnya adalah seperti ini:
 ```
 
 ## 2. API Authentication (Login)
+
 **Endpoint:** `POST /api/auth/login`
 **Payload (FE kirim):**
+
 ```json
 {
   "username": "admin_sd1",
   "password": "password123"
 }
 ```
+
 **Respons Sukses (BE balas):**
+
 ```json
 {
   "success": true,
@@ -40,9 +47,11 @@ Setiap kali Backend membalas *request*, format wajibnya adalah seperti ini:
 ```
 
 ## 3. API Laporan Keuangan
+
 **Endpoint:** `GET /api/keuangan`
 **Deskripsi:** Mengambil data keuangan berdasarkan filter. Frontend akan menambahkan query string (contoh: `?aum_id=123&periode=bulanan`).
 **Respons Sukses:**
+
 ```json
 {
   "success": true,
@@ -62,8 +71,10 @@ Setiap kali Backend membalas *request*, format wajibnya adalah seperti ini:
 ```
 
 ## 4. API Input Keuangan (Khusus Admin)
+
 **Endpoint:** `POST /api/keuangan`
 **Payload (FE kirim):** Header wajib menyertakan `Authorization: Bearer <token>`
+
 ```json
 {
   "aum_id": "123",
@@ -75,8 +86,10 @@ Setiap kali Backend membalas *request*, format wajibnya adalah seperti ini:
 ```
 
 ## 5. API Data Wakaf
+
 **Endpoint:** `GET /api/wakaf`
 **Respons Sukses:**
+
 ```json
 {
   "success": true,
@@ -95,4 +108,3 @@ Setiap kali Backend membalas *request*, format wajibnya adalah seperti ini:
 ```
 
 ---
-*Catatan: Tabel berita tidak ada di API karena disepakati dibuat statis di Frontend.*

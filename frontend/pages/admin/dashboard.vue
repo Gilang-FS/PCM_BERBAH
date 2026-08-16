@@ -11,7 +11,7 @@ onMounted(() => {
 
 // Filter
 const filterPeriode = ref('harian')
-const filterAum = ref('semua')
+const filterAum = ref('PCM Berbah')
 
 const aumList = ['PCM Berbah', 'SD Muh 1', 'SD Muh 2', 'SD Muh 3', 'SD Muh 4', 'SD Muh 5', 'SD Muh 6', 'SMP Muh', 'SMK Muh', 'Klinik']
 
@@ -59,7 +59,7 @@ const filteredKeuangan = computed(() => {
   const now = new Date()
   return keuanganData.value.filter(item => {
     // 1. Filter AUM
-    if (filterAum.value !== 'semua' && item.aum !== filterAum.value) {
+    if (item.aum !== filterAum.value) {
       return false
     }
 
@@ -118,7 +118,7 @@ const periodeLabel = computed(() => {
           v-model="filterAum"
           class="w-full bg-gray-50 border border-gray-200 text-gray-700 text-[13px] font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1B5E20]/30 focus:border-[#1B5E20] p-2.5"
         >
-          <option value="semua">Semua AUM (Total Gabungan)</option>
+
           <option v-for="aum in aumList" :key="aum" :value="aum">{{ aum }}</option>
         </select>
       </div>
@@ -217,7 +217,7 @@ const periodeLabel = computed(() => {
 
           <div class="flex-1 min-w-0">
             <p class="text-[13px] font-semibold text-gray-800 truncate">{{ item.keterangan }}</p>
-            <p class="text-[11px] text-gray-400 mt-0.5">{{ formatTanggal(item.tanggal) }} <span v-if="filterAum === 'semua'">· {{ item.aum }}</span></p>
+            <p class="text-[11px] text-gray-400 mt-0.5">{{ formatTanggal(item.tanggal) }}</p>
           </div>
 
           <p

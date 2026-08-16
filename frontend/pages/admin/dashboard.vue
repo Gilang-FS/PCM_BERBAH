@@ -78,6 +78,9 @@ const filteredKeuangan = computed(() => {
   })
 })
 
+const dataPemasukan = computed(() => filteredKeuangan.value.filter(r => r.jenis === 'pemasukan'))
+const dataPengeluaran = computed(() => filteredKeuangan.value.filter(r => r.jenis === 'pengeluaran'))
+
 const totalPemasukan = computed(() =>
   filteredKeuangan.value.filter(r => r.jenis === 'pemasukan').reduce((s, r) => s + r.nominal, 0)
 )
@@ -186,50 +189,47 @@ const periodeLabel = computed(() => {
       </div>
     </div>
 
-    <!-- Tabel Rekapan Keuangan -->
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-      <div class="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
-        <h2 class="text-[15px] font-bold text-gray-800">Rekap Transaksi</h2>
-        <span class="text-[11px] text-gray-400 font-medium">{{ filteredKeuangan.length }} transaksi</span>
+    <!-- Tabel Rekapan Keuangan Split (Pemasukan / Pengeluaran) -->
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col md:flex-row">
+      <!-- Kiri: Pemasukan -->
+      <div class="flex-1 border-b md:border-b-0 md:border-r border-gray-100">
+        <div class="px-4 py-3.5 border-b border-gray-50 flex items-center justify-center bg-green-50/30">
+          <h2 class="text-[13px] font-bold text-green-700 uppercase tracking-widest">Pemasukan</h2>
+        </div>
+        <div class="divide-y divide-gray-50">
+          <div v-for="item in dataPemasukan" :key="item.id" class="px-4 py-3.5 flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4">
+            <div class="w-24 shrink-0">
+              <p class="text-[11px] text-gray-400">{{ formatTanggal(item.tanggal) }}</p>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-[13px] font-bold text-green-600 mb-0.5">{{ formatRupiah(item.nominal) }}</p>
+              <p class="text-[12px] text-gray-700 leading-snug">{{ item.keterangan }}</p>
+            </div>
+          </div>
+          <div v-if="dataPemasukan.length === 0" class="px-5 py-8 text-center text-gray-400 text-[12px]">
+            Tidak ada pemasukan
+          </div>
+        </div>
       </div>
 
-      <div class="divide-y divide-gray-50">
-        <div
-          v-for="item in filteredKeuangan"
-          :key="item.id"
-          class="px-5 py-3.5 flex items-center gap-3"
-        >
-          <div
-            class="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
-            :class="item.jenis === 'pemasukan' ? 'bg-green-50' : 'bg-red-50'"
-          >
-            <svg
-              class="w-4 h-4"
-              :class="item.jenis === 'pemasukan' ? 'text-green-500' : 'text-red-400'"
-              fill="none" stroke="currentColor" viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                :d="item.jenis === 'pemasukan' ? 'M5 10l7-7m0 0l7 7m-7-7v18' : 'M19 14l-7 7m0 0l-7-7m7 7V3'"
-              />
-            </svg>
-          </div>
-
-          <div class="flex-1 min-w-0">
-            <p class="text-[13px] font-semibold text-gray-800 truncate">{{ item.keterangan }}</p>
-            <p class="text-[11px] text-gray-400 mt-0.5">{{ formatTanggal(item.tanggal) }}</p>
-          </div>
-
-          <p
-            class="text-[14px] font-bold shrink-0"
-            :class="item.jenis === 'pemasukan' ? 'text-green-600' : 'text-red-500'"
-          >
-            {{ item.jenis === 'pemasukan' ? '+' : '-' }}{{ formatRupiah(item.nominal) }}
-          </p>
+      <!-- Kanan: Pengeluaran -->
+      <div class="flex-1">
+        <div class="px-4 py-3.5 border-b border-gray-50 flex items-center justify-center bg-red-50/30">
+          <h2 class="text-[13px] font-bold text-red-600 uppercase tracking-widest">Pengeluaran</h2>
         </div>
-
-        <div v-if="filteredKeuangan.length === 0" class="px-5 py-10 text-center text-gray-400 text-sm">
-          Tidak ada data untuk periode {{ periodeLabel.toLowerCase() }}.
+        <div class="divide-y divide-gray-50">
+          <div v-for="item in dataPengeluaran" :key="item.id" class="px-4 py-3.5 flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4">
+            <div class="w-24 shrink-0">
+              <p class="text-[11px] text-gray-400">{{ formatTanggal(item.tanggal) }}</p>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-[13px] font-bold text-red-500 mb-0.5">{{ formatRupiah(item.nominal) }}</p>
+              <p class="text-[12px] text-gray-700 leading-snug">{{ item.keterangan }}</p>
+            </div>
+          </div>
+          <div v-if="dataPengeluaran.length === 0" class="px-5 py-8 text-center text-gray-400 text-[12px]">
+            Tidak ada pengeluaran
+          </div>
         </div>
       </div>
     </div>

@@ -100,7 +100,7 @@
                 v-model="username"
                 id="username"
                 type="text"
-                placeholder="institutional@pcmberbah.or.id"
+                placeholder="Contoh: superadmin"
                 class="flex-1 text-sm text-gray-600 placeholder-gray-300 bg-transparent outline-none"
               />
             </div>
@@ -205,6 +205,16 @@
             </button>
           </div>
         </form>
+
+        <!-- Hint Kredensial -->
+        <div class="mt-6 w-full bg-white/70 border border-gray-100 rounded-2xl px-4 py-3 text-[11px] text-gray-500 space-y-1">
+          <p class="font-bold text-gray-600 mb-1.5">🔑 Akun untuk testing:</p>
+          <p><span class="font-semibold text-gray-700">superadmin</span> / admin123</p>
+          <p><span class="font-semibold text-gray-700">admin_sd1</span> / admin123</p>
+          <p><span class="font-semibold text-gray-700">admin_smp</span> / admin123</p>
+          <p><span class="font-semibold text-gray-700">admin_smk</span> / admin123</p>
+          <p><span class="font-semibold text-gray-700">admin_ranting</span> / admin123</p>
+        </div>
       </div>
 
       <!-- Footer -->
@@ -228,22 +238,32 @@ const remember = ref(false);
 const isLoading = ref(false);
 const errorMessage = ref("");
 
+const USERS: Record<string, { password: string; role: string }> = {
+  superadmin: { password: 'admin123', role: 'superadmin' },
+  admin_sd1:  { password: 'admin123', role: 'admin' },
+  admin_sd2:  { password: 'admin123', role: 'admin' },
+  admin_sd3:  { password: 'admin123', role: 'admin' },
+  admin_sd4:  { password: 'admin123', role: 'admin' },
+  admin_sd5:  { password: 'admin123', role: 'admin' },
+  admin_sd6:  { password: 'admin123', role: 'admin' },
+  admin_smp:  { password: 'admin123', role: 'admin' },
+  admin_smk:  { password: 'admin123', role: 'admin' },
+  admin_ranting: { password: 'admin123', role: 'admin' },
+}
+
 const handleLogin = async () => {
   isLoading.value = true;
   errorMessage.value = "";
 
-  // Simulasi network request (800ms)
   await new Promise((resolve) => setTimeout(resolve, 800));
 
-  // MOCK — akan diganti dengan API call ke BE nanti
-  if (
-    (username.value === "superadmin" || username.value === "admin") &&
-    password.value.length >= 4
-  ) {
-    localStorage.setItem("user_role", username.value);
-    await router.push("/admin/dashboard");
+  const user = USERS[username.value]
+  if (user && password.value === user.password) {
+    localStorage.setItem('user_role', user.role)
+    localStorage.setItem('user_username', username.value)
+    await router.push('/admin/dashboard')
   } else {
-    errorMessage.value = "Username atau password yang Anda masukkan salah.";
+    errorMessage.value = 'Username atau password yang Anda masukkan salah.';
   }
 
   isLoading.value = false;

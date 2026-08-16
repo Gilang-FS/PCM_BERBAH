@@ -9,297 +9,301 @@ onMounted(() => {
   userRole.value = localStorage.getItem('user_role') || ''
 })
 
-// State untuk filter
-const filterPeriode = ref('harian') // harian, bulanan, 6_bulanan
-const filterAum = ref('semua') // untuk superadmin
-
-// State untuk modal
-const isModalOpen = ref(false)
-const modalType = ref<'add' | 'edit'>('add')
-
+// Form state
 const form = ref({
-  id: '',
-  keterangan: '',
-  jenis: 'pemasukan',
-  nominal: 0,
-  periode: 'harian',
+  jenis: 'pemasukan' as 'pemasukan' | 'pengeluaran',
   tanggal: new Date().toISOString().split('T')[0],
+  nominal: '',
+  keterangan: '',
   aum: 'SD Muh 1'
 })
 
-// Data dummy (nanti dari API)
-const keuanganData = ref([
-  { id: '1', tanggal: '2026-08-15', keterangan: 'SPP Bulan Agustus', jenis: 'pemasukan', nominal: 5000000, periode: 'bulanan', aum: 'SD Muh 1' },
-  { id: '2', tanggal: '2026-08-14', keterangan: 'Pembelian ATK', jenis: 'pengeluaran', nominal: 1200000, periode: 'harian', aum: 'SMP Muh' },
-  { id: '3', tanggal: '2026-08-14', keterangan: 'Infaq Jumat', jenis: 'pemasukan', nominal: 3500000, periode: 'harian', aum: 'SD Muh 3' },
-  { id: '4', tanggal: '2026-08-01', keterangan: 'Dana BOS Semester 1', jenis: 'pemasukan', nominal: 45000000, periode: '6_bulanan', aum: 'SMK Muh' },
+const isSubmitting = ref(false)
+const editingId = ref<string | null>(null) // null = mode tambah, string = mode edit
+
+const aumList = ['SD Muh 1', 'SD Muh 2', 'SD Muh 3', 'SD Muh 4', 'SD Muh 5', 'SD Muh 6', 'SMP Muh', 'SMK Muh', 'Klinik']
+
+// Data riwayat
+const riwayat = ref([
+  { id: '1', tanggal: '2026-08-15', keterangan: 'Pemasukan Zakat', jenis: 'pemasukan' as const, nominal: 500000, aum: 'SD Muh 1' },
+  { id: '2', tanggal: '2026-08-14', keterangan: 'Pemasukan Infaq', jenis: 'pemasukan' as const, nominal: 1000000, aum: 'SMP Muh' },
+  { id: '3', tanggal: '2026-08-13', keterangan: 'Pengeluaran Operasional', jenis: 'pengeluaran' as const, nominal: 250000, aum: 'SD Muh 1' },
+  { id: '4', tanggal: '2026-08-12', keterangan: 'SPP Bulan Agustus', jenis: 'pemasukan' as const, nominal: 5000000, aum: 'SD Muh 3' },
+  { id: '5', tanggal: '2026-08-10', keterangan: 'Pembelian ATK', jenis: 'pengeluaran' as const, nominal: 320000, aum: 'SMK Muh' },
 ])
 
-const aumList = ['SD Muh 1', 'SD Muh 2', 'SD Muh 3', 'SD Muh 4', 'SD Muh 5', 'SD Muh 6', 'SMP Muh', 'SMK Muh', 'Ranting A']
+const formatRupiah = (num: number) =>
+  'Rp ' + new Intl.NumberFormat('id-ID').format(num)
 
-// Filter logika
-const filteredData = computed(() => {
-  return keuanganData.value.filter(item => {
-    const matchPeriode = filterPeriode.value === 'semua' || item.periode === filterPeriode.value
-    const matchAum = filterAum.value === 'semua' || item.aum === filterAum.value
-    return matchPeriode && matchAum
-  })
-})
-
-const formatRupiah = (num: number) => {
-  return new Intl.NumberFormat('id-ID').format(num)
+const formatTanggal = (str: string) => {
+  const d = new Date(str)
+  return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
-const openAddModal = () => {
-  modalType.value = 'add'
-  form.value = {
-    id: '',
-    keterangan: '',
-    jenis: 'pemasukan',
-    nominal: 0,
-    periode: filterPeriode.value !== 'semua' ? filterPeriode.value : 'harian',
-    tanggal: new Date().toISOString().split('T')[0],
-    aum: userRole.value === 'superadmin' ? 'SD Muh 1' : 'AUM Anda' // Nanti dari profile user
-  }
-  isModalOpen.value = true
-}
+// Submit: Tambah atau Simpan Edit
+const submitInput = async () => {
+  if (!form.value.nominal || !form.value.keterangan || !form.value.tanggal) return
+  isSubmitting.value = true
+  await new Promise(r => setTimeout(r, 300))
 
-const openEditModal = (item: any) => {
-  modalType.value = 'edit'
-  form.value = { ...item }
-  isModalOpen.value = true
-}
-
-const closeModal = () => {
-  isModalOpen.value = false
-}
-
-const saveKeuangan = () => {
-  if (modalType.value === 'add') {
-    keuanganData.value.unshift({
-      ...form.value,
-      id: Date.now().toString()
-    })
+  if (editingId.value) {
+    // Mode edit — update data yang sudah ada
+    const index = riwayat.value.findIndex(r => r.id === editingId.value)
+    if (index !== -1) {
+      riwayat.value[index] = {
+        id: editingId.value,
+        tanggal: form.value.tanggal,
+        keterangan: form.value.keterangan,
+        jenis: form.value.jenis,
+        nominal: Number(form.value.nominal),
+        aum: form.value.aum
+      }
+    }
+    editingId.value = null
   } else {
-    const index = keuanganData.value.findIndex(k => k.id === form.value.id)
-    if (index !== -1) keuanganData.value[index] = { ...form.value }
+    // Mode tambah
+    riwayat.value.unshift({
+      id: Date.now().toString(),
+      tanggal: form.value.tanggal,
+      keterangan: form.value.keterangan,
+      jenis: form.value.jenis,
+      nominal: Number(form.value.nominal),
+      aum: form.value.aum
+    })
   }
-  closeModal()
+
+  // Reset form
+  form.value.nominal = ''
+  form.value.keterangan = ''
+  isSubmitting.value = false
 }
 
-const deleteKeuangan = (id: string) => {
-  if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
-    keuanganData.value = keuanganData.value.filter(item => item.id !== id)
-  }
+// Edit: isi form dengan data yang dipilih
+const startEdit = (item: any) => {
+  editingId.value = item.id
+  form.value.jenis = item.jenis
+  form.value.tanggal = item.tanggal
+  form.value.nominal = item.nominal.toString()
+  form.value.keterangan = item.keterangan
+  form.value.aum = item.aum
+  // Scroll ke atas form
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+// Batal edit
+const cancelEdit = () => {
+  editingId.value = null
+  form.value.nominal = ''
+  form.value.keterangan = ''
+}
+
+// Hapus
+const showDeleteConfirm = ref<string | null>(null)
+
+const deleteItem = (id: string) => {
+  riwayat.value = riwayat.value.filter(r => r.id !== id)
+  showDeleteConfirm.value = null
+  // Jika sedang edit item yang dihapus, batalkan edit
+  if (editingId.value === id) editingId.value = null
 }
 </script>
 
 <template>
-  <div class="space-y-5">
-    <!-- Header & Actions -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-      <div>
-        <h1 class="text-lg font-bold text-gray-800">Kelola Keuangan</h1>
-        <p class="text-[13px] text-gray-400 mt-0.5">Pantau dan catat pemasukan / pengeluaran.</p>
-      </div>
-      <button
-        @click="openAddModal"
-        class="bg-[#1B5E20] hover:bg-[#145218] text-white px-4 py-2 rounded-lg text-[13px] font-semibold transition-colors flex items-center gap-2"
-      >
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-        </svg>
-        Tambah Data
-      </button>
-    </div>
+  <div class="max-w-xl mx-auto space-y-4 pb-10">
 
-    <!-- Filters -->
-    <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex flex-col sm:flex-row gap-3">
-      <!-- Filter Periode -->
-      <div class="flex-1">
-        <label class="block text-[11px] font-semibold text-gray-400 uppercase mb-1">Periode Laporan</label>
-        <select v-model="filterPeriode" class="w-full bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-[#1B5E20] focus:border-[#1B5E20] block p-2">
-          <option value="semua">Semua Periode</option>
-          <option value="harian">Harian</option>
-          <option value="bulanan">Bulanan</option>
-          <option value="6_bulanan">6 Bulanan (Semester)</option>
-        </select>
+    <!-- Form Input Langsung -->
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      <div class="px-5 pt-5 pb-1 flex items-center justify-between">
+        <h2 class="text-[15px] font-bold text-gray-800">
+          {{ editingId ? 'Edit Data Keuangan' : 'Masukan Keuangan' }}
+        </h2>
+        <button
+          v-if="editingId"
+          @click="cancelEdit"
+          class="text-[12px] text-gray-400 hover:text-gray-600 font-medium"
+        >
+          Batal edit
+        </button>
       </div>
 
-      <!-- Filter AUM (Khusus Superadmin) -->
-      <div v-if="userRole === 'superadmin'" class="flex-1">
-        <label class="block text-[11px] font-semibold text-gray-400 uppercase mb-1">Filter AUM</label>
-        <select v-model="filterAum" class="w-full bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-[#1B5E20] focus:border-[#1B5E20] block p-2">
-          <option value="semua">Semua AUM & Ranting</option>
-          <option v-for="aum in aumList" :key="aum" :value="aum">{{ aum }}</option>
-        </select>
-      </div>
-    </div>
+      <form @submit.prevent="submitInput" class="px-5 pb-5 pt-3 space-y-4">
 
-    <!-- Table Data -->
-    <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-      <!-- Mobile View (Card List) -->
-      <div class="md:hidden divide-y divide-gray-50">
-        <div v-for="item in filteredData" :key="item.id" class="p-4 flex flex-col gap-2">
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="text-[14px] font-bold text-gray-800 leading-tight">{{ item.keterangan }}</p>
-              <p class="text-[11px] text-gray-400 mt-0.5">{{ item.aum }} · {{ item.tanggal }}</p>
-            </div>
-            <span
-              class="text-[10px] font-medium px-2 py-0.5 rounded-full"
-              :class="item.periode === 'harian' ? 'bg-blue-50 text-blue-600' : item.periode === 'bulanan' ? 'bg-purple-50 text-purple-600' : 'bg-orange-50 text-orange-600'"
-            >
-              {{ item.periode.replace('_', ' ').toUpperCase() }}
-            </span>
+        <!-- Jenis Toggle -->
+        <div class="flex bg-gray-100 rounded-xl p-1 gap-1">
+          <button
+            type="button"
+            @click="form.jenis = 'pemasukan'"
+            class="flex-1 py-2 rounded-lg text-[13px] font-semibold transition-all duration-200"
+            :class="form.jenis === 'pemasukan'
+              ? 'bg-white text-green-700 shadow-sm'
+              : 'text-gray-400 hover:text-gray-600'"
+          >
+            ↑ Pemasukan
+          </button>
+          <button
+            type="button"
+            @click="form.jenis = 'pengeluaran'"
+            class="flex-1 py-2 rounded-lg text-[13px] font-semibold transition-all duration-200"
+            :class="form.jenis === 'pengeluaran'
+              ? 'bg-white text-red-600 shadow-sm'
+              : 'text-gray-400 hover:text-gray-600'"
+          >
+            ↓ Pengeluaran
+          </button>
+        </div>
+
+        <!-- AUM (Superadmin) -->
+        <div v-if="userRole === 'superadmin'" class="space-y-1">
+          <label class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">AUM / Klinik</label>
+          <select v-model="form.aum" class="w-full px-3.5 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1B5E20]/30 focus:border-[#1B5E20] text-gray-700 bg-gray-50/50">
+            <option v-for="aum in aumList" :key="aum" :value="aum">{{ aum }}</option>
+          </select>
+        </div>
+
+        <!-- Tanggal -->
+        <div class="space-y-1">
+          <label class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Tanggal</label>
+          <input type="date" v-model="form.tanggal" required class="w-full px-3.5 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1B5E20]/30 focus:border-[#1B5E20] text-gray-700 bg-gray-50/50" />
+        </div>
+
+        <!-- Nominal -->
+        <div class="space-y-1">
+          <label class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Nominal</label>
+          <div class="relative">
+            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-400">Rp</span>
+            <input type="number" v-model="form.nominal" min="0" required placeholder="0" class="w-full pl-10 pr-3.5 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1B5E20]/30 focus:border-[#1B5E20] text-gray-700 bg-gray-50/50 placeholder-gray-300" />
           </div>
-          <div class="flex items-center justify-between mt-2">
+        </div>
+
+        <!-- Keterangan -->
+        <div class="space-y-1">
+          <label class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Keterangan</label>
+          <input type="text" v-model="form.keterangan" required placeholder="Masukkan Keterangan" class="w-full px-3.5 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1B5E20]/30 focus:border-[#1B5E20] text-gray-700 bg-gray-50/50 placeholder-gray-300" />
+        </div>
+
+        <!-- Tombol Submit -->
+        <button
+          type="submit"
+          :disabled="isSubmitting"
+          class="w-full py-3 rounded-xl text-[14px] font-bold tracking-wide transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60"
+          :class="editingId
+            ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-900/20 active:scale-[0.98]'
+            : form.jenis === 'pemasukan'
+              ? 'bg-[#0b4a2f] hover:bg-[#083623] text-white shadow-md shadow-green-900/20 active:scale-[0.98]'
+              : 'bg-red-600 hover:bg-red-700 text-white shadow-md shadow-red-900/20 active:scale-[0.98]'"
+        >
+          <svg v-if="isSubmitting" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+          </svg>
+          <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+          {{ isSubmitting ? 'Menyimpan...' : editingId ? 'Simpan Perubahan' : 'Input' }}
+        </button>
+      </form>
+    </div>
+
+    <!-- Riwayat Input -->
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      <div class="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
+        <h2 class="text-[15px] font-bold text-gray-800">Riwayat Input</h2>
+        <span class="text-[11px] text-gray-400 font-medium">{{ riwayat.length }} transaksi</span>
+      </div>
+
+      <div class="divide-y divide-gray-50">
+        <div
+          v-for="item in riwayat"
+          :key="item.id"
+          class="px-5 py-3.5 flex items-center gap-3 group relative"
+          :class="editingId === item.id ? 'bg-blue-50/40' : 'hover:bg-gray-50/60'"
+        >
+          <!-- Icon -->
+          <div
+            class="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+            :class="item.jenis === 'pemasukan' ? 'bg-green-50' : 'bg-red-50'"
+          >
+            <svg
+              class="w-4 h-4"
+              :class="item.jenis === 'pemasukan' ? 'text-green-500' : 'text-red-400'"
+              fill="none" stroke="currentColor" viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                :d="item.jenis === 'pemasukan' ? 'M5 10l7-7m0 0l7 7m-7-7v18' : 'M19 14l-7 7m0 0l-7-7m7 7V3'"
+              />
+            </svg>
+          </div>
+
+          <!-- Info -->
+          <div class="flex-1 min-w-0">
+            <p class="text-[13px] font-semibold text-gray-800 truncate">{{ item.keterangan }}</p>
+            <p class="text-[11px] text-gray-400 mt-0.5">
+              {{ formatTanggal(item.tanggal) }}
+              <span v-if="userRole === 'superadmin'"> · {{ item.aum }}</span>
+            </p>
+          </div>
+
+          <!-- Nominal & Actions -->
+          <div class="text-right shrink-0">
             <p
               class="text-[14px] font-bold"
               :class="item.jenis === 'pemasukan' ? 'text-green-600' : 'text-red-500'"
             >
-              {{ item.jenis === 'pemasukan' ? '+' : '-' }}Rp {{ formatRupiah(item.nominal) }}
+              {{ item.jenis === 'pemasukan' ? '+' : '-' }}{{ formatRupiah(item.nominal) }}
             </p>
-            <div class="flex items-center gap-2">
-              <button @click="openEditModal(item)" class="text-blue-500 hover:text-blue-700 p-1">Edit</button>
-              <button @click="deleteKeuangan(item.id)" class="text-red-500 hover:text-red-700 p-1">Hapus</button>
+            <div class="flex items-center justify-end gap-2 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button
+                @click="startEdit(item)"
+                class="text-[10px] text-blue-500 hover:text-blue-700 font-medium"
+              >
+                Edit
+              </button>
+              <button
+                @click="showDeleteConfirm = item.id"
+                class="text-[10px] text-red-400 hover:text-red-600 font-medium"
+              >
+                Hapus
+              </button>
             </div>
           </div>
         </div>
-        <div v-if="filteredData.length === 0" class="p-8 text-center text-gray-400 text-sm">
-          Tidak ada data keuangan.
-        </div>
-      </div>
 
-      <!-- Desktop View (Table) -->
-      <div class="hidden md:block overflow-x-auto">
-        <table class="w-full text-[13px]">
-          <thead class="bg-gray-50 border-b border-gray-100">
-            <tr class="text-left text-[11px] text-gray-500 uppercase tracking-wider">
-              <th class="px-4 py-3 font-semibold">Tanggal</th>
-              <th class="px-4 py-3 font-semibold">Keterangan</th>
-              <th v-if="userRole === 'superadmin'" class="px-4 py-3 font-semibold">AUM</th>
-              <th class="px-4 py-3 font-semibold">Periode</th>
-              <th class="px-4 py-3 font-semibold">Jenis</th>
-              <th class="px-4 py-3 font-semibold text-right">Nominal</th>
-              <th class="px-4 py-3 font-semibold text-center">Aksi</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-50">
-            <tr v-for="item in filteredData" :key="item.id" class="hover:bg-gray-50/50 transition-colors">
-              <td class="px-4 py-3.5 text-gray-500">{{ item.tanggal }}</td>
-              <td class="px-4 py-3.5 text-gray-800 font-medium">{{ item.keterangan }}</td>
-              <td v-if="userRole === 'superadmin'" class="px-4 py-3.5 text-gray-500">{{ item.aum }}</td>
-              <td class="px-4 py-3.5">
-                <span
-                  class="text-[10px] font-medium px-2 py-0.5 rounded border"
-                  :class="item.periode === 'harian' ? 'bg-blue-50 text-blue-600 border-blue-100' : item.periode === 'bulanan' ? 'bg-purple-50 text-purple-600 border-purple-100' : 'bg-orange-50 text-orange-600 border-orange-100'"
-                >
-                  {{ item.periode.replace('_', ' ').toUpperCase() }}
-                </span>
-              </td>
-              <td class="px-4 py-3.5">
-                <span
-                  class="text-[10px] font-medium px-2 py-0.5 rounded-full"
-                  :class="item.jenis === 'pemasukan' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'"
-                >
-                  {{ item.jenis }}
-                </span>
-              </td>
-              <td class="px-4 py-3.5 text-right font-bold"
-                :class="item.jenis === 'pemasukan' ? 'text-green-600' : 'text-red-500'"
-              >
-                {{ item.jenis === 'pemasukan' ? '+' : '-' }}Rp {{ formatRupiah(item.nominal) }}
-              </td>
-              <td class="px-4 py-3.5 text-center">
-                <div class="flex items-center justify-center gap-3">
-                  <button @click="openEditModal(item)" class="text-blue-500 hover:text-blue-700 text-sm font-medium">Edit</button>
-                  <button @click="deleteKeuangan(item.id)" class="text-red-500 hover:text-red-700 text-sm font-medium">Hapus</button>
-                </div>
-              </td>
-            </tr>
-            <tr v-if="filteredData.length === 0">
-              <td :colspan="userRole === 'superadmin' ? 7 : 6" class="px-4 py-8 text-center text-gray-400">
-                Tidak ada data ditemukan
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div v-if="riwayat.length === 0" class="px-5 py-10 text-center text-gray-400 text-sm">
+          Belum ada transaksi.
+        </div>
       </div>
     </div>
 
-    <!-- Modal Form (Add/Edit) -->
-    <div v-if="isModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <!-- Backdrop -->
-      <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="closeModal"></div>
-      
-      <!-- Modal Box -->
-      <div class="relative bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-        <div class="px-5 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-          <h2 class="text-[15px] font-bold text-gray-800">
-            {{ modalType === 'add' ? 'Tambah Data Keuangan' : 'Edit Data Keuangan' }}
-          </h2>
-          <button @click="closeModal" class="text-gray-400 hover:text-gray-600">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+    <!-- Modal Konfirmasi Hapus -->
+    <div v-if="showDeleteConfirm" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="showDeleteConfirm = null"></div>
+      <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-[300px] overflow-hidden">
+        <div class="p-6 text-center">
+          <div class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-3">
+            <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
-          </button>
-        </div>
-
-        <form @submit.prevent="saveKeuangan" class="p-5 space-y-4">
-          <div v-if="userRole === 'superadmin' && modalType === 'add'" class="space-y-1">
-            <label class="text-[12px] font-semibold text-gray-600">Pilih AUM / Ranting</label>
-            <select v-model="form.aum" required class="w-full p-2.5 text-sm border border-gray-200 rounded-lg focus:ring-[#1B5E20] focus:border-[#1B5E20]">
-              <option v-for="aum in aumList" :key="aum" :value="aum">{{ aum }}</option>
-            </select>
           </div>
-
-          <div class="grid grid-cols-2 gap-4">
-            <div class="space-y-1">
-              <label class="text-[12px] font-semibold text-gray-600">Periode</label>
-              <select v-model="form.periode" required class="w-full p-2.5 text-sm border border-gray-200 rounded-lg focus:ring-[#1B5E20] focus:border-[#1B5E20]">
-                <option value="harian">Harian</option>
-                <option value="bulanan">Bulanan</option>
-                <option value="6_bulanan">6 Bulanan</option>
-              </select>
-            </div>
-            <div class="space-y-1">
-              <label class="text-[12px] font-semibold text-gray-600">Tanggal</label>
-              <input type="date" v-model="form.tanggal" required class="w-full p-2.5 text-sm border border-gray-200 rounded-lg focus:ring-[#1B5E20] focus:border-[#1B5E20]" />
-            </div>
-          </div>
-
-          <div class="space-y-1">
-            <label class="text-[12px] font-semibold text-gray-600">Jenis Transaksi</label>
-            <div class="grid grid-cols-2 gap-3">
-              <label class="flex items-center gap-2 p-2.5 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors" :class="form.jenis === 'pemasukan' ? 'border-green-500 bg-green-50/50' : ''">
-                <input type="radio" v-model="form.jenis" value="pemasukan" class="text-green-600 focus:ring-green-500" />
-                <span class="text-sm font-medium" :class="form.jenis === 'pemasukan' ? 'text-green-700' : 'text-gray-600'">Pemasukan</span>
-              </label>
-              <label class="flex items-center gap-2 p-2.5 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors" :class="form.jenis === 'pengeluaran' ? 'border-red-500 bg-red-50/50' : ''">
-                <input type="radio" v-model="form.jenis" value="pengeluaran" class="text-red-500 focus:ring-red-500" />
-                <span class="text-sm font-medium" :class="form.jenis === 'pengeluaran' ? 'text-red-700' : 'text-gray-600'">Pengeluaran</span>
-              </label>
-            </div>
-          </div>
-
-          <div class="space-y-1">
-            <label class="text-[12px] font-semibold text-gray-600">Keterangan / Rincian</label>
-            <input type="text" v-model="form.keterangan" required placeholder="Contoh: Pembayaran Listrik" class="w-full p-2.5 text-sm border border-gray-200 rounded-lg focus:ring-[#1B5E20] focus:border-[#1B5E20]" />
-          </div>
-
-          <div class="space-y-1">
-            <label class="text-[12px] font-semibold text-gray-600">Nominal (Rp)</label>
-            <input type="number" v-model="form.nominal" required min="0" placeholder="0" class="w-full p-2.5 text-sm border border-gray-200 rounded-lg focus:ring-[#1B5E20] focus:border-[#1B5E20]" />
-          </div>
-
-          <div class="pt-2">
-            <button type="submit" class="w-full bg-[#1B5E20] hover:bg-[#145218] text-white py-2.5 rounded-lg text-[13px] font-bold shadow-sm transition-colors">
-              Simpan Data
+          <h3 class="text-[15px] font-bold text-gray-800 mb-1">Hapus data ini?</h3>
+          <p class="text-[12px] text-gray-400">Data yang dihapus tidak bisa dikembalikan.</p>
+          <div class="flex gap-3 mt-5">
+            <button
+              @click="showDeleteConfirm = null"
+              class="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors"
+            >
+              Batal
+            </button>
+            <button
+              @click="deleteItem(showDeleteConfirm!)"
+              class="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white bg-red-500 hover:bg-red-600 transition-colors"
+            >
+              Ya, Hapus
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
+
   </div>
 </template>

@@ -189,40 +189,39 @@ const periodeLabel = computed(() => {
       </div>
     </div>
 
-    <!-- Tabel Rekapan Keuangan Split (Scrollable on Mobile) -->
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
-      <div class="min-w-[700px] flex flex-row">
-        <!-- Kiri: Pemasukan -->
-        <div class="flex-1 border-r border-gray-100">
-          <div class="px-4 py-3 border-b border-gray-50 flex items-center justify-center bg-green-50/50">
-            <h2 class="text-[13px] font-bold text-green-700 uppercase tracking-widest">Pemasukan</h2>
+    <!-- Tabel Rekapan Keuangan Split (Ledger Style) -->
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-row w-full">
+      
+      <!-- Kiri: Pemasukan -->
+      <div class="flex-1 border-r border-gray-100 w-1/2">
+        <div class="px-3 py-3 border-b border-gray-50 flex items-center justify-center bg-green-50/50">
+          <h2 class="text-[12px] font-bold text-green-700 uppercase tracking-widest text-center">Pemasukan</h2>
+        </div>
+        <div class="divide-y divide-gray-50">
+          <div v-for="item in dataPemasukan" :key="item.id" class="p-3 flex flex-col gap-1 hover:bg-gray-50/50 transition-colors">
+            <p class="text-[10px] text-gray-400">{{ formatTanggal(item.tanggal) }}</p>
+            <p class="text-[13px] font-bold text-green-600">{{ formatRupiah(item.nominal) }}</p>
+            <p class="text-[11px] text-gray-700 leading-snug line-clamp-2">{{ item.keterangan }}</p>
           </div>
-          <div class="divide-y divide-gray-50">
-            <div v-for="item in dataPemasukan" :key="item.id" class="px-4 py-3.5 flex items-start gap-4">
-              <p class="text-[11px] text-gray-500 w-20 shrink-0 mt-0.5">{{ formatTanggal(item.tanggal) }}</p>
-              <p class="text-[13px] font-bold text-green-600 w-28 shrink-0">{{ formatRupiah(item.nominal) }}</p>
-              <p class="text-[12px] text-gray-700 flex-1 leading-snug">{{ item.keterangan }}</p>
-            </div>
-            <div v-if="dataPemasukan.length === 0" class="px-5 py-8 text-center text-gray-400 text-[12px]">
-              Tidak ada pemasukan
-            </div>
+          <div v-if="dataPemasukan.length === 0" class="p-5 text-center text-gray-400 text-[11px]">
+            Tidak ada pemasukan
           </div>
         </div>
+      </div>
 
-        <!-- Kanan: Pengeluaran -->
-        <div class="flex-1">
-          <div class="px-4 py-3 border-b border-gray-50 flex items-center justify-center bg-red-50/50">
-            <h2 class="text-[13px] font-bold text-red-600 uppercase tracking-widest">Pengeluaran</h2>
+      <!-- Kanan: Pengeluaran -->
+      <div class="flex-1 w-1/2">
+        <div class="px-3 py-3 border-b border-gray-50 flex items-center justify-center bg-red-50/50">
+          <h2 class="text-[12px] font-bold text-red-600 uppercase tracking-widest text-center">Pengeluaran</h2>
+        </div>
+        <div class="divide-y divide-gray-50">
+          <div v-for="item in dataPengeluaran" :key="item.id" class="p-3 flex flex-col gap-1 hover:bg-gray-50/50 transition-colors">
+            <p class="text-[10px] text-gray-400">{{ formatTanggal(item.tanggal) }}</p>
+            <p class="text-[13px] font-bold text-red-500">{{ formatRupiah(item.nominal) }}</p>
+            <p class="text-[11px] text-gray-700 leading-snug line-clamp-2">{{ item.keterangan }}</p>
           </div>
-          <div class="divide-y divide-gray-50">
-            <div v-for="item in dataPengeluaran" :key="item.id" class="px-4 py-3.5 flex items-start gap-4">
-              <p class="text-[11px] text-gray-500 w-20 shrink-0 mt-0.5">{{ formatTanggal(item.tanggal) }}</p>
-              <p class="text-[13px] font-bold text-red-500 w-28 shrink-0">{{ formatRupiah(item.nominal) }}</p>
-              <p class="text-[12px] text-gray-700 flex-1 leading-snug">{{ item.keterangan }}</p>
-            </div>
-            <div v-if="dataPengeluaran.length === 0" class="px-5 py-8 text-center text-gray-400 text-[12px]">
-              Tidak ada pengeluaran
-            </div>
+          <div v-if="dataPengeluaran.length === 0" class="p-5 text-center text-gray-400 text-[11px]">
+            Tidak ada pengeluaran
           </div>
         </div>
       </div>

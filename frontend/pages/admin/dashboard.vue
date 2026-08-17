@@ -15,15 +15,29 @@ const filterAum = ref('PCM Berbah')
 
 const aumList = ['PCM Berbah', 'SD Muh 1', 'SD Muh 2', 'SD Muh 3', 'SD Muh 4', 'SD Muh 5', 'SD Muh 6', 'SMP Muh', 'SMK Muh', 'Klinik']
 
-// Data keuangan dummy
+// Data keuangan dummy (Dengan data yang banyak dan keterangan panjang)
 const keuanganData = ref([
-  { id: '1', tanggal: '2026-08-16', keterangan: 'SPP Bulan Agustus', jenis: 'pemasukan', nominal: 5000000, aum: 'SD Muh 1' },
-  { id: '2', tanggal: '2026-08-16', keterangan: 'Pembelian ATK', jenis: 'pengeluaran', nominal: 1200000, aum: 'SD Muh 1' },
-  { id: '3', tanggal: '2026-08-15', keterangan: 'Infaq Jumat', jenis: 'pemasukan', nominal: 3500000, aum: 'PCM Berbah' },
-  { id: '4', tanggal: '2026-08-10', keterangan: 'Gaji Guru Honorer', jenis: 'pengeluaran', nominal: 8500000, aum: 'SMP Muh' },
-  { id: '5', tanggal: '2026-08-01', keterangan: 'Dana BOS Semester 1', jenis: 'pemasukan', nominal: 45000000, aum: 'SMK Muh' },
-  { id: '6', tanggal: '2026-07-20', keterangan: 'Perawatan Gedung', jenis: 'pengeluaran', nominal: 3200000, aum: 'SD Muh 2' },
-  { id: '7', tanggal: '2026-03-15', keterangan: 'Dana BOS Semester 2', jenis: 'pemasukan', nominal: 42000000, aum: 'SD Muh 1' },
+  // Data Hari Ini (16 Agustus 2026) - PCM Berbah
+  { id: '1', tanggal: '2026-08-16', keterangan: 'Infaq Jumat Keliling dari Masjid Al-Ikhlas, Masjid Taqwa, dan Masjid Mujahidin wilayah ranting utara. Penambahan jumlah dari bulan lalu dikarenakan adanya acara pengajian akbar yang dihadiri banyak jamaah.', jenis: 'pemasukan', nominal: 4500000, aum: 'PCM Berbah' },
+  { id: '2', tanggal: '2026-08-16', keterangan: 'Pembelian konsumsi ringan, air mineral, teh, dan kopi untuk rapat koordinasi rutin bulanan pimpinan cabang Muhammadiyah Berbah yang dihadiri oleh seluruh ketua ranting dan kepala AUM se-cabang Berbah.', jenis: 'pengeluaran', nominal: 350000, aum: 'PCM Berbah' },
+  { id: '3', tanggal: '2026-08-16', keterangan: 'Donasi simpatisan Bpk. H. Abdullah', jenis: 'pemasukan', nominal: 1000000, aum: 'PCM Berbah' },
+  { id: '4', tanggal: '2026-08-16', keterangan: 'Sumbangan pembangunan panti asuhan', jenis: 'pemasukan', nominal: 2500000, aum: 'PCM Berbah' },
+  { id: '5', tanggal: '2026-08-16', keterangan: 'Biaya perbaikan atap bocor di gedung dakwah PCM Berbah akibat hujan deras kemarin sore. Perbaikan meliputi penggantian genteng dan plafon yang rusak.', jenis: 'pengeluaran', nominal: 1800000, aum: 'PCM Berbah' },
+  { id: '6', tanggal: '2026-08-16', keterangan: 'Beli alat kebersihan', jenis: 'pengeluaran', nominal: 150000, aum: 'PCM Berbah' },
+  
+  // Data Bulan Ini (Agustus 2026) - PCM Berbah
+  { id: '7', tanggal: '2026-08-12', keterangan: 'Setoran lazismu bulan berjalan', jenis: 'pemasukan', nominal: 12000000, aum: 'PCM Berbah' },
+  { id: '8', tanggal: '2026-08-10', keterangan: 'Pembayaran tagihan listrik bulanan, tagihan air PDAM, dan internet IndiHome untuk gedung dakwah utama PCM Berbah periode bulan Agustus.', jenis: 'pengeluaran', nominal: 850000, aum: 'PCM Berbah' },
+  { id: '9', tanggal: '2026-08-05', keterangan: 'Dana bantuan sosial untuk warga isoman', jenis: 'pengeluaran', nominal: 3000000, aum: 'PCM Berbah' },
+  { id: '10', tanggal: '2026-08-02', keterangan: 'Hasil kotak infaq pengajian Ahad Pagi yang diselenggarakan di lapangan kecamatan dengan pembicara ustaz tamu dari Pimpinan Wilayah.', jenis: 'pemasukan', nominal: 6750000, aum: 'PCM Berbah' },
+  
+  // Data AUM Lainnya
+  { id: '11', tanggal: '2026-08-16', keterangan: 'SPP Bulan Agustus', jenis: 'pemasukan', nominal: 5000000, aum: 'SD Muh 1' },
+  { id: '12', tanggal: '2026-08-16', keterangan: 'Pembelian ATK', jenis: 'pengeluaran', nominal: 1200000, aum: 'SD Muh 1' },
+  { id: '13', tanggal: '2026-08-10', keterangan: 'Gaji Guru Honorer', jenis: 'pengeluaran', nominal: 8500000, aum: 'SMP Muh' },
+  { id: '14', tanggal: '2026-08-01', keterangan: 'Dana BOS Semester 1 turun dari pemerintah', jenis: 'pemasukan', nominal: 45000000, aum: 'SMK Muh' },
+  { id: '15', tanggal: '2026-07-20', keterangan: 'Perawatan Gedung', jenis: 'pengeluaran', nominal: 3200000, aum: 'SD Muh 2' },
+  { id: '16', tanggal: '2026-03-15', keterangan: 'Dana BOS Semester 2', jenis: 'pemasukan', nominal: 42000000, aum: 'SD Muh 1' },
 ])
 
 // Data wakaf dummy (dengan gambar agar mirip berita)
@@ -189,40 +203,41 @@ const periodeLabel = computed(() => {
       </div>
     </div>
 
-    <!-- Tabel Rekapan Keuangan Split (Ledger Style) -->
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-row w-full">
-      
-      <!-- Kiri: Pemasukan -->
-      <div class="flex-1 border-r border-gray-100 w-1/2">
-        <div class="px-3 py-3 border-b border-gray-50 flex items-center justify-center bg-green-50/50">
-          <h2 class="text-[12px] font-bold text-green-700 uppercase tracking-widest text-center">Pemasukan</h2>
-        </div>
-        <div class="divide-y divide-gray-50">
-          <div v-for="item in dataPemasukan" :key="item.id" class="p-3 flex flex-col gap-1 hover:bg-gray-50/50 transition-colors">
-            <p class="text-[10px] text-gray-400">{{ formatTanggal(item.tanggal) }}</p>
-            <p class="text-[13px] font-bold text-green-600">{{ formatRupiah(item.nominal) }}</p>
-            <p class="text-[11px] text-gray-700 leading-snug line-clamp-2">{{ item.keterangan }}</p>
-          </div>
-          <div v-if="dataPemasukan.length === 0" class="p-5 text-center text-gray-400 text-[11px]">
-            Tidak ada pemasukan
-          </div>
-        </div>
+    <!-- Tabel Rekapan Keuangan (Unified Ledger) -->
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      <!-- Header -->
+      <div class="flex items-center px-4 py-3 bg-gray-50 border-b border-gray-100">
+        <div class="flex-1 text-[11px] font-bold text-gray-500 uppercase tracking-widest">Transaksi</div>
+        <div class="w-[85px] sm:w-28 shrink-0 text-right text-[11px] font-bold text-gray-500 uppercase tracking-widest">Masuk</div>
+        <div class="w-[85px] sm:w-28 shrink-0 text-right text-[11px] font-bold text-gray-500 uppercase tracking-widest">Keluar</div>
       </div>
+      
+      <!-- Body -->
+      <div class="divide-y divide-gray-50">
+        <div v-for="item in filteredKeuangan" :key="item.id" class="flex items-start px-4 py-3.5 hover:bg-gray-50/50 transition-colors">
+          <!-- Tanggal & Keterangan -->
+          <div class="flex-1 pr-2 sm:pr-4">
+            <p class="text-[10px] font-semibold text-gray-400 mb-0.5">{{ formatTanggal(item.tanggal) }}</p>
+            <p class="text-[12px] text-gray-800 leading-snug line-clamp-2">{{ item.keterangan }}</p>
+          </div>
+          
+          <!-- Pemasukan -->
+          <div class="w-[85px] sm:w-28 shrink-0 text-right">
+            <p class="text-[12px] font-bold" :class="item.jenis === 'pemasukan' ? 'text-green-600' : 'text-gray-300 font-medium'">
+              {{ item.jenis === 'pemasukan' ? formatRupiah(item.nominal) : 'Rp 0' }}
+            </p>
+          </div>
 
-      <!-- Kanan: Pengeluaran -->
-      <div class="flex-1 w-1/2">
-        <div class="px-3 py-3 border-b border-gray-50 flex items-center justify-center bg-red-50/50">
-          <h2 class="text-[12px] font-bold text-red-600 uppercase tracking-widest text-center">Pengeluaran</h2>
+          <!-- Pengeluaran -->
+          <div class="w-[85px] sm:w-28 shrink-0 text-right">
+            <p class="text-[12px] font-bold" :class="item.jenis === 'pengeluaran' ? 'text-red-500' : 'text-gray-300 font-medium'">
+              {{ item.jenis === 'pengeluaran' ? formatRupiah(item.nominal) : 'Rp 0' }}
+            </p>
+          </div>
         </div>
-        <div class="divide-y divide-gray-50">
-          <div v-for="item in dataPengeluaran" :key="item.id" class="p-3 flex flex-col gap-1 hover:bg-gray-50/50 transition-colors">
-            <p class="text-[10px] text-gray-400">{{ formatTanggal(item.tanggal) }}</p>
-            <p class="text-[13px] font-bold text-red-500">{{ formatRupiah(item.nominal) }}</p>
-            <p class="text-[11px] text-gray-700 leading-snug line-clamp-2">{{ item.keterangan }}</p>
-          </div>
-          <div v-if="dataPengeluaran.length === 0" class="p-5 text-center text-gray-400 text-[11px]">
-            Tidak ada pengeluaran
-          </div>
+        
+        <div v-if="filteredKeuangan.length === 0" class="p-8 text-center text-gray-400 text-[12px]">
+          Tidak ada transaksi untuk periode ini.
         </div>
       </div>
     </div>

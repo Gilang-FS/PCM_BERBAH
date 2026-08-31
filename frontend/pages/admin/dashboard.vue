@@ -1,120 +1,122 @@
 <script setup lang="ts">
+import { ref, onMounted, computed } from 'vue'
+import { useKeuangan, getPeriodeLabel } from '~/composables/useKeuangan'
+import { useAum } from '~/composables/useAum'
+
+import { exportToExcel, exportToPDF } from '~/utils/exportKeuangan'
+
 definePageMeta({
   layout: 'admin',
   middleware: ['auth']
 })
 
 const userRole = ref('')
+const { aumList, activeAum } = useAum()
+
+// 1. State Filter
+const filterPeriode = ref('bulanan')
+
 onMounted(() => {
   userRole.value = localStorage.getItem('user_role') || ''
+  // Jika Admin biasa, ganti default ke unit mereka sendiri
+  if (userRole.value !== 'superadmin') {
+    activeAum.value = 'SD Muhammadiyah 1'
+  }
 })
 
-// Filter
-const filterPeriode = ref('harian')
-const filterAum = ref('PCM Berbah')
+// 2. Mengambil data dari composable
+const { getFiltered, hitungRingkasan, ringkasanPerKategori } = useKeuangan()
 
-const aumList = ['PCM Berbah', 'SD Muh 1', 'SD Muh 2', 'SD Muh 3', 'SD Muh 4', 'SD Muh 5', 'SD Muh 6', 'SMP Muh', 'SMK Muh', 'Klinik']
-
-// Data keuangan dummy (Dengan data yang banyak dan keterangan panjang)
-const keuanganData = ref([
-  // Data Hari Ini (16 Agustus 2026) - PCM Berbah
-  { id: '1', tanggal: '2026-08-16', keterangan: 'Infaq Jumat Keliling dari Masjid Al-Ikhlas, Masjid Taqwa, dan Masjid Mujahidin wilayah ranting utara. Penambahan jumlah dari bulan lalu dikarenakan adanya acara pengajian akbar yang dihadiri banyak jamaah.', jenis: 'pemasukan', nominal: 4500000, aum: 'PCM Berbah' },
-  { id: '2', tanggal: '2026-08-16', keterangan: 'Pembelian konsumsi ringan, air mineral, teh, dan kopi untuk rapat koordinasi rutin bulanan pimpinan cabang Muhammadiyah Berbah yang dihadiri oleh seluruh ketua ranting dan kepala AUM se-cabang Berbah.', jenis: 'pengeluaran', nominal: 350000, aum: 'PCM Berbah' },
-  { id: '3', tanggal: '2026-08-16', keterangan: 'Donasi simpatisan Bpk. H. Abdullah', jenis: 'pemasukan', nominal: 1000000, aum: 'PCM Berbah' },
-  { id: '4', tanggal: '2026-08-16', keterangan: 'Sumbangan pembangunan panti asuhan', jenis: 'pemasukan', nominal: 2500000, aum: 'PCM Berbah' },
-  { id: '5', tanggal: '2026-08-16', keterangan: 'Biaya perbaikan atap bocor di gedung dakwah PCM Berbah akibat hujan deras kemarin sore. Perbaikan meliputi penggantian genteng dan plafon yang rusak.', jenis: 'pengeluaran', nominal: 1800000, aum: 'PCM Berbah' },
-  { id: '6', tanggal: '2026-08-16', keterangan: 'Beli alat kebersihan', jenis: 'pengeluaran', nominal: 150000, aum: 'PCM Berbah' },
-  
-  // Data Bulan Ini (Agustus 2026) - PCM Berbah
-  { id: '7', tanggal: '2026-08-12', keterangan: 'Setoran lazismu bulan berjalan', jenis: 'pemasukan', nominal: 12000000, aum: 'PCM Berbah' },
-  { id: '8', tanggal: '2026-08-10', keterangan: 'Pembayaran tagihan listrik bulanan, tagihan air PDAM, dan internet IndiHome untuk gedung dakwah utama PCM Berbah periode bulan Agustus.', jenis: 'pengeluaran', nominal: 850000, aum: 'PCM Berbah' },
-  { id: '9', tanggal: '2026-08-05', keterangan: 'Dana bantuan sosial untuk warga isoman', jenis: 'pengeluaran', nominal: 3000000, aum: 'PCM Berbah' },
-  { id: '10', tanggal: '2026-08-02', keterangan: 'Hasil kotak infaq pengajian Ahad Pagi yang diselenggarakan di lapangan kecamatan dengan pembicara ustaz tamu dari Pimpinan Wilayah.', jenis: 'pemasukan', nominal: 6750000, aum: 'PCM Berbah' },
-  
-  // Data AUM Lainnya
-  { id: '11', tanggal: '2026-08-16', keterangan: 'SPP Bulan Agustus', jenis: 'pemasukan', nominal: 5000000, aum: 'SD Muh 1' },
-  { id: '12', tanggal: '2026-08-16', keterangan: 'Pembelian ATK', jenis: 'pengeluaran', nominal: 1200000, aum: 'SD Muh 1' },
-  { id: '13', tanggal: '2026-08-10', keterangan: 'Gaji Guru Honorer', jenis: 'pengeluaran', nominal: 8500000, aum: 'SMP Muh' },
-  { id: '14', tanggal: '2026-08-01', keterangan: 'Dana BOS Semester 1 turun dari pemerintah', jenis: 'pemasukan', nominal: 45000000, aum: 'SMK Muh' },
-  { id: '15', tanggal: '2026-07-20', keterangan: 'Perawatan Gedung', jenis: 'pengeluaran', nominal: 3200000, aum: 'SD Muh 2' },
-  { id: '16', tanggal: '2026-03-15', keterangan: 'Dana BOS Semester 2', jenis: 'pemasukan', nominal: 42000000, aum: 'SD Muh 1' },
-])
-
-// Data wakaf dummy (dengan gambar agar mirip berita)
-const wakafData = ref([
-  {
-    id: '1',
-    jenisAset: 'Tanah Kosong 200m²',
-    lokasi: 'Jl. Raya Berbah, Tegaltirto',
-    status: 'Aktif',
-    keterangan: 'Lahan wakaf strategis di pinggir jalan raya, cocok untuk dibangun panti asuhan atau pusat dakwah Muhammadiyah.',
-    image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=500&h=300&fit=crop'
-  },
-  {
-    id: '2',
-    jenisAset: 'Gedung Serbaguna',
-    lokasi: 'Kalitirto, Berbah',
-    status: 'Proses',
-    keterangan: 'Sedang dalam proses balik nama sertifikat. Gedung ini sebelumnya difungsikan sebagai balai pertemuan warga.',
-    image: 'https://images.unsplash.com/photo-1577495508048-b635879837f1?w=500&h=300&fit=crop'
-  },
-  {
-    id: '3',
-    jenisAset: 'Lahan Pertanian 500m²',
-    lokasi: 'Sendangtirto, Berbah',
-    status: 'Aktif',
-    keterangan: 'Aset wakaf produktif berupa lahan persawahan yang disewakan untuk dikelola. Hasil sewa masuk kas PCM.',
-    image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=500&h=300&fit=crop'
-  },
-])
-
-// Filter keuangan berdasarkan periode & AUM
-const filteredKeuangan = computed(() => {
-  const now = new Date()
-  return keuanganData.value.filter(item => {
-    // 1. Filter AUM
-    if (item.aum !== filterAum.value) {
-      return false
-    }
-
-    // 2. Filter Periode
-    const itemDate = new Date(item.tanggal)
-    if (filterPeriode.value === 'harian') {
-      return itemDate.toDateString() === now.toDateString()
-    } else if (filterPeriode.value === 'bulanan') {
-      return itemDate.getMonth() === now.getMonth() && itemDate.getFullYear() === now.getFullYear()
-    } else {
-      // 6 bulanan — 6 bulan terakhir
-      const sixMonthsAgo = new Date(now)
-      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6)
-      return itemDate >= sixMonthsAgo
-    }
-  })
-})
-
-const dataPemasukan = computed(() => filteredKeuangan.value.filter(r => r.jenis === 'pemasukan'))
-const dataPengeluaran = computed(() => filteredKeuangan.value.filter(r => r.jenis === 'pengeluaran'))
-
-const totalPemasukan = computed(() =>
-  filteredKeuangan.value.filter(r => r.jenis === 'pemasukan').reduce((s, r) => s + r.nominal, 0)
-)
-const totalPengeluaran = computed(() =>
-  filteredKeuangan.value.filter(r => r.jenis === 'pengeluaran').reduce((s, r) => s + r.nominal, 0)
-)
-const saldo = computed(() => totalPemasukan.value - totalPengeluaran.value)
-
-const formatRupiah = (num: number) => 'Rp ' + new Intl.NumberFormat('id-ID').format(num)
-
-const formatTanggal = (str: string) => {
-  const d = new Date(str)
-  return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
-}
+// Reactive data berdasarkan filter
+const filteredData = computed(() => getFiltered(activeAum.value, filterPeriode.value))
+const ringkasan = computed(() => hitungRingkasan(filteredData.value))
+const ringkasanKategori = computed(() => ringkasanPerKategori(filteredData.value))
 
 const periodeLabel = computed(() => {
-  if (filterPeriode.value === 'harian') return 'Hari Ini'
-  if (filterPeriode.value === 'bulanan') return 'Bulan Ini'
-  return '6 Bulan Terakhir'
+  if (filterPeriode.value === 'harian') return 'HARI INI'
+  if (filterPeriode.value === 'bulanan') return 'BULAN INI'
+  return '6 BULAN TERAKHIR'
 })
+
+// Handler Export
+const handleExportExcel = async () => {
+  await exportToExcel(filteredData.value, activeAum.value, filterPeriode.value)
+}
+
+const handleExportPDF = async () => {
+  await exportToPDF(filteredData.value, activeAum.value, filterPeriode.value)
+}
+
+// 3. Formatters
+const formatRupiah = (num: number) => 'Rp ' + new Intl.NumberFormat('id-ID').format(num)
+const formatTanggal = (str: string) => new Date(str).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
+
+// 4. Konfigurasi Grafik (ApexCharts)
+const chartOptions = computed(() => {
+  // Ambil tanggal-tanggal unik yang ada transaksinya
+  const dates = [...new Set(filteredData.value.map(item => item.tanggal))].sort()
+  
+  return {
+    chart: {
+      type: 'area',
+      fontFamily: 'inherit',
+      toolbar: { show: false },
+      zoom: { enabled: false }
+    },
+    colors: ['#10B981', '#EF4444'], // Hijau (pemasukan), Merah (pengeluaran)
+    dataLabels: { enabled: false },
+    stroke: { curve: 'smooth', width: 2 },
+    xaxis: {
+      categories: dates.length ? dates.map(d => formatTanggal(d)) : ['Belum ada data'],
+      tooltip: { enabled: false },
+      labels: { style: { colors: '#9CA3AF', fontSize: '10px' } }
+    },
+    yaxis: {
+      labels: {
+        formatter: (val: number) => {
+          if (val === 0) return '0'
+          return 'Rp ' + (val / 1000000).toFixed(1) + 'Jt'
+        },
+        style: { colors: '#9CA3AF', fontSize: '10px' }
+      }
+    },
+    legend: { position: 'top', horizontalAlign: 'right', fontSize: '12px', fontWeight: 600 },
+    grid: { borderColor: '#F3F4F6', strokeDashArray: 4 },
+    fill: {
+      type: 'gradient',
+      gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0, stops: [0, 90, 100] }
+    }
+  }
+})
+
+const chartSeries = computed(() => {
+  const dates = [...new Set(filteredData.value.map(item => item.tanggal))].sort()
+  
+  if (dates.length === 0) return [{ name: 'Pemasukan', data: [0] }, { name: 'Pengeluaran', data: [0] }]
+
+  const pemasukanData = dates.map(date => {
+    return filteredData.value
+      .filter(item => item.tanggal === date && item.tipe === 'pemasukan')
+      .reduce((sum, item) => sum + item.nominal, 0)
+  })
+  
+  const pengeluaranData = dates.map(date => {
+    return filteredData.value
+      .filter(item => item.tanggal === date && item.tipe === 'pengeluaran')
+      .reduce((sum, item) => sum + item.nominal, 0)
+  })
+
+  return [
+    { name: 'Pemasukan', data: pemasukanData },
+    { name: 'Pengeluaran', data: pengeluaranData }
+  ]
+})
+
+// 5. Preview Wakaf Dummy (Sifatnya global/terbaru, tidak terpengaruh filter)
+const wakafTerbaru = ref([
+  { id: '1', jenisAset: 'Tanah Kosong 200m²', lokasi: 'Jl. Raya Berbah, Tegaltirto', nominal: 5000000, tanggal: '2026-10-12', image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=500&h=300&fit=crop' },
+  { id: '2', jenisAset: 'Gedung Serbaguna', lokasi: 'Kalitirto, Berbah', nominal: 25000000, tanggal: '2026-10-10', image: 'https://images.unsplash.com/photo-1577495508048-b635879837f1?w=500&h=300&fit=crop' }
+])
 </script>
 
 <template>
@@ -123,163 +125,176 @@ const periodeLabel = computed(() => {
     <!-- Header -->
     <div>
       <h1 class="text-lg font-bold text-gray-800">Home</h1>
-      <p class="text-[13px] text-gray-400 mt-0.5">Ringkasan data keuangan dan aset wakaf.</p>
+      <p class="text-[13px] text-gray-400 mt-0.5">Ringkasan kinerja keuangan dan aset wakaf.</p>
     </div>
 
-    <!-- Filter Bar -->
-    <div class="space-y-3">
-      <!-- Filter AUM (Khusus Superadmin) -->
-      <div v-if="userRole === 'superadmin'" class="bg-white rounded-xl border border-gray-100 shadow-sm px-4 py-3">
-        <label class="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-2">Lihat Data AUM</label>
+    <!-- Filter & Action Bar -->
+    <div class="space-y-4">
+      <!-- Filter AUM (Khusus Superadmin, Tepat 10 Opsi tanpa Semua/Gabungan) -->
+      <div v-if="userRole === 'superadmin'" class="bg-white rounded-[16px] border border-gray-50 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] px-4 py-3.5">
+        <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Pilih Unit</label>
         <select
-          v-model="filterAum"
-          class="w-full bg-gray-50 border border-gray-200 text-gray-700 text-[13px] font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1B5E20]/30 focus:border-[#1B5E20] p-2.5"
+          v-model="activeAum"
+          class="w-full bg-gray-50/50 border border-gray-200 text-gray-800 text-[14px] font-bold rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1B5E20]/30 focus:border-[#1B5E20] p-3 appearance-none"
         >
-
           <option v-for="aum in aumList" :key="aum" :value="aum">{{ aum }}</option>
         </select>
       </div>
 
-      <!-- Tab Periode -->
-      <div class="flex bg-white rounded-xl p-1 gap-1 border border-gray-100 shadow-sm">
-        <button
-          v-for="p in [
-            { key: 'harian', label: 'Harian' },
-            { key: 'bulanan', label: 'Bulanan' },
-            { key: '6_bulanan', label: '6 Bulanan' }
-          ]"
-          :key="p.key"
-          @click="filterPeriode = p.key"
-          class="flex-1 py-2.5 rounded-lg text-[13px] font-semibold transition-all duration-200"
-          :class="filterPeriode === p.key
-            ? 'bg-[#0b4a2f] text-white shadow-sm'
-            : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'"
-        >
-          {{ p.label }}
-        </button>
+      <!-- Tab Periode (Scroll horizontal di mobile) -->
+      <div class="overflow-x-auto pb-1 -mx-4 px-4 md:mx-0 md:px-0">
+        <div class="flex bg-white rounded-xl p-1 gap-1 border border-gray-50 shadow-sm min-w-max">
+          <button
+            v-for="p in [ { key: 'harian', label: 'Harian' }, { key: 'bulanan', label: 'Bulanan' }, { key: '6_bulanan', label: '6 Bulanan' } ]"
+            :key="p.key"
+            @click="filterPeriode = p.key"
+            class="px-6 py-2.5 rounded-lg text-[13px] font-bold transition-all duration-200"
+            :class="filterPeriode === p.key ? 'bg-[#1B5E20] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'"
+          >
+            {{ p.label }}
+          </button>
+        </div>
       </div>
     </div>
 
-    <!-- Summary Cards -->
-    <div class="space-y-3">
-      <!-- Saldo -->
-      <div class="bg-white rounded-2xl px-5 py-4 border border-gray-100 shadow-sm flex items-center gap-4">
-        <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-          <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-          </svg>
+    <!-- Summary Cards (Hero & Grid) -->
+    <div class="space-y-4">
+      <!-- Saldo (Hero Card) -->
+      <div class="bg-[#1B5E20] rounded-[24px] px-6 py-6 shadow-lg shadow-green-900/20 relative overflow-hidden">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 rounded-[14px] bg-white/20 flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+            </svg>
+          </div>
+          <p class="text-[13px] font-medium text-green-100">Total saldo {{ periodeLabel.toLowerCase() }}</p>
         </div>
         <div>
-          <p class="text-[10px] font-bold tracking-widest text-gray-400 uppercase">Total Saldo · {{ periodeLabel }}</p>
-          <p class="text-[22px] font-bold text-gray-900 leading-tight mt-0.5">{{ formatRupiah(saldo) }}</p>
+          <p class="text-[32px] font-bold text-white leading-none tracking-tight">{{ formatRupiah(ringkasan.saldoAkhir) }}</p>
         </div>
       </div>
 
-      <!-- Pemasukan & Pengeluaran -->
-      <div class="grid grid-cols-2 gap-3">
-        <div class="bg-white rounded-2xl px-4 py-3.5 border border-gray-100 shadow-sm">
-          <div class="flex items-center gap-2 mb-1.5">
-            <div class="w-6 h-6 rounded-lg bg-green-50 flex items-center justify-center">
-              <svg class="w-3.5 h-3.5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <!-- Pemasukan & Pengeluaran (2 Columns) -->
+      <div class="grid grid-cols-2 gap-4">
+        <!-- Pemasukan -->
+        <div class="bg-white rounded-[20px] px-5 py-4 border border-gray-100 shadow-sm relative overflow-hidden">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-8 h-8 rounded-xl bg-green-50 flex items-center justify-center">
+              <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
               </svg>
             </div>
-            <p class="text-[10px] font-bold tracking-wider text-gray-400 uppercase">Pemasukan</p>
+            <p class="text-[12px] font-medium text-gray-500">Pemasukan</p>
           </div>
-          <p class="text-[17px] font-bold text-green-600 leading-tight">{{ formatRupiah(totalPemasukan) }}</p>
+          <p class="text-[18px] font-bold text-gray-900 mt-2">{{ formatRupiah(ringkasan.totalPemasukan) }}</p>
         </div>
 
-        <div class="bg-white rounded-2xl px-4 py-3.5 border border-gray-100 shadow-sm">
-          <div class="flex items-center gap-2 mb-1.5">
-            <div class="w-6 h-6 rounded-lg bg-red-50 flex items-center justify-center">
-              <svg class="w-3.5 h-3.5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- Pengeluaran -->
+        <div class="bg-white rounded-[20px] px-5 py-4 border border-gray-100 shadow-sm relative overflow-hidden">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-8 h-8 rounded-xl bg-red-50 flex items-center justify-center">
+              <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
               </svg>
             </div>
-            <p class="text-[10px] font-bold tracking-wider text-gray-400 uppercase">Pengeluaran</p>
+            <p class="text-[12px] font-medium text-gray-500">Pengeluaran</p>
           </div>
-          <p class="text-[17px] font-bold text-red-500 leading-tight">{{ formatRupiah(totalPengeluaran) }}</p>
+          <p class="text-[18px] font-bold text-gray-900 mt-2">{{ formatRupiah(ringkasan.totalPengeluaran) }}</p>
         </div>
       </div>
     </div>
 
-    <!-- Tabel Rekapan Keuangan (Unified Ledger) -->
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-      <!-- Header -->
-      <div class="flex items-center px-4 py-3 bg-gray-50 border-b border-gray-100">
-        <div class="flex-1 text-[11px] font-bold text-gray-500 uppercase tracking-widest">Transaksi</div>
-        <div class="w-[85px] sm:w-28 shrink-0 text-right text-[11px] font-bold text-gray-500 uppercase tracking-widest">Masuk</div>
-        <div class="w-[85px] sm:w-28 shrink-0 text-right text-[11px] font-bold text-gray-500 uppercase tracking-widest">Keluar</div>
+    <!-- Chart -->
+    <div class="bg-white rounded-[24px] p-5 border border-gray-50 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-[14px] font-bold text-gray-800">Tren Keuangan</h3>
+      </div>
+      <div class="-ml-2">
+        <ClientOnly>
+          <apexchart height="200" :options="chartOptions" :series="chartSeries"></apexchart>
+        </ClientOnly>
+      </div>
+    </div>
+
+    <!-- Tabel Ringkasan Kategori -->
+    <div class="bg-white rounded-[24px] border border-gray-50 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
+      <div class="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
+        <h3 class="text-[14px] font-bold text-gray-800">Ringkasan Kategori</h3>
       </div>
       
-      <!-- Body -->
-      <div class="divide-y divide-gray-50">
-        <div v-for="item in filteredKeuangan" :key="item.id" class="flex items-start px-4 py-3.5 hover:bg-gray-50/50 transition-colors">
-          <!-- Tanggal & Keterangan -->
-          <div class="flex-1 pr-2 sm:pr-4">
-            <p class="text-[10px] font-semibold text-gray-400 mb-0.5">{{ formatTanggal(item.tanggal) }}</p>
-            <p class="text-[12px] text-gray-800 leading-snug line-clamp-2">{{ item.keterangan }}</p>
-          </div>
-          
-          <!-- Pemasukan -->
-          <div class="w-[85px] sm:w-28 shrink-0 text-right">
-            <p class="text-[12px] font-bold" :class="item.jenis === 'pemasukan' ? 'text-green-600' : 'text-gray-300 font-medium'">
-              {{ item.jenis === 'pemasukan' ? formatRupiah(item.nominal) : 'Rp 0' }}
-            </p>
-          </div>
-
-          <!-- Pengeluaran -->
-          <div class="w-[85px] sm:w-28 shrink-0 text-right">
-            <p class="text-[12px] font-bold" :class="item.jenis === 'pengeluaran' ? 'text-red-500' : 'text-gray-300 font-medium'">
-              {{ item.jenis === 'pengeluaran' ? formatRupiah(item.nominal) : 'Rp 0' }}
-            </p>
-          </div>
+      <!-- Pemasukan Group -->
+      <div v-if="ringkasanKategori.filter(i => i.tipe === 'pemasukan').length" class="px-5 py-2 bg-green-50/50 border-b border-green-50">
+        <p class="text-[11px] font-bold text-green-700 uppercase tracking-wider">Pendapatan</p>
+      </div>
+      <div class="divide-y divide-gray-50 px-5">
+        <div v-for="item in ringkasanKategori.filter(i => i.tipe === 'pemasukan')" :key="item.kode_akun" class="py-3.5 flex items-center justify-between">
+          <p class="text-[13px] font-medium text-gray-600">{{ item.nama }}</p>
+          <p class="text-[14px] font-bold text-green-600">{{ formatRupiah(item.total) }}</p>
         </div>
-        
-        <div v-if="filteredKeuangan.length === 0" class="p-8 text-center text-gray-400 text-[12px]">
-          Tidak ada transaksi untuk periode ini.
+      </div>
+
+      <!-- Pengeluaran Group -->
+      <div v-if="ringkasanKategori.filter(i => i.tipe === 'pengeluaran').length" class="px-5 py-2 bg-red-50/50 border-y border-red-50 mt-2">
+        <p class="text-[11px] font-bold text-red-700 uppercase tracking-wider">Pengeluaran & Beban</p>
+      </div>
+      <div class="divide-y divide-gray-50 px-5">
+        <div v-for="item in ringkasanKategori.filter(i => i.tipe === 'pengeluaran')" :key="item.kode_akun" class="py-3.5 flex items-center justify-between">
+          <p class="text-[13px] font-medium text-gray-600">{{ item.nama }}</p>
+          <p class="text-[14px] font-bold text-red-500">{{ formatRupiah(item.total) }}</p>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div v-if="ringkasanKategori.length === 0" class="py-8 text-center text-gray-400 text-[13px] font-medium">
+        Belum ada transaksi di periode ini.
+      </div>
+
+      <!-- Total Footer -->
+      <div class="bg-gray-50/50 px-5 py-4 border-t border-gray-100 mt-2">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-[12px] font-bold text-gray-500">Total Pemasukan</p>
+          <p class="text-[14px] font-bold text-green-600">{{ formatRupiah(ringkasan.totalPemasukan) }}</p>
+        </div>
+        <div class="flex items-center justify-between">
+          <p class="text-[12px] font-bold text-gray-500">Total Pengeluaran</p>
+          <p class="text-[14px] font-bold text-red-500">{{ formatRupiah(ringkasan.totalPengeluaran) }}</p>
+        </div>
+      </div>
+      
+      <!-- Export Action Area -->
+      <div class="px-5 py-4 bg-white border-t border-gray-100">
+        <p class="text-[11px] text-gray-400 mb-3 text-center sm:text-left">Unduh laporan rinci untuk periode ini:</p>
+        <div class="flex flex-col sm:flex-row items-center gap-2">
+          <button @click="handleExportExcel" class="w-full sm:flex-1 justify-center px-4 py-2.5 bg-green-50 text-green-700 hover:bg-green-100 rounded-xl text-[13px] font-bold transition-colors flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            Export Buku Besar (Excel)
+          </button>
+          <button @click="handleExportPDF" class="w-full sm:flex-1 justify-center px-4 py-2.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl text-[13px] font-bold transition-colors flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+            Export Laba/Rugi (PDF)
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- Data Wakaf (Tampilan Card Berita) -->
-    <div class="space-y-4 pt-2">
-      <div class="flex items-center justify-between px-1">
-        <h2 class="text-lg font-bold text-gray-800">Informasi Aset Wakaf</h2>
-        <span class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">{{ wakafData.length }} Aset</span>
+    <!-- Preview Wakaf -->
+    <div class="bg-white rounded-[24px] border border-gray-50 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
+      <div class="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
+        <h3 class="text-[15px] font-bold text-gray-800">Wakaf Terbaru</h3>
+        <NuxtLink to="/admin/wakaf" class="text-[11px] font-bold text-[#1B5E20] hover:text-[#124016]">Semua Wakaf</NuxtLink>
       </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div
-          v-for="item in wakafData"
-          :key="item.id"
-          class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col group cursor-pointer hover:shadow-md transition-all duration-200"
-        >
-          <!-- Gambar Aset -->
-          <div class="relative w-full h-40 bg-gray-100 overflow-hidden">
-            <img :src="item.image" :alt="item.jenisAset" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-            <div class="absolute top-3 right-3">
-              <span
-                class="text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm backdrop-blur-md"
-                :class="item.status === 'Aktif' ? 'bg-green-500/90 text-white' : 'bg-amber-500/90 text-white'"
-              >
-                {{ item.status }}
-              </span>
-            </div>
+      <div class="divide-y divide-gray-50 px-5">
+        <div v-for="item in wakafTerbaru" :key="item.id" class="py-4 flex items-center gap-4 group">
+          <div class="w-12 h-12 rounded-[14px] bg-[#f0f7f3] flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5 text-[#1B5E20]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
           </div>
-          
-          <!-- Konten Card -->
-          <div class="p-4 flex flex-col flex-1">
-            <div class="flex items-center gap-1.5 text-gray-400 mb-2">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              <span class="text-[11px] font-medium">{{ item.lokasi }}</span>
-            </div>
-            <h3 class="text-[15px] font-bold text-gray-800 leading-tight mb-2 group-hover:text-[#1B5E20] transition-colors">{{ item.jenisAset }}</h3>
-            <p class="text-[12px] text-gray-500 leading-relaxed line-clamp-2 mt-auto">{{ item.keterangan }}</p>
+          <div class="flex-1 min-w-0">
+            <p class="text-[14px] font-bold text-gray-800 truncate">{{ item.jenisAset }}</p>
+            <p class="text-[11px] text-gray-400 mt-0.5 truncate">{{ formatTanggal(item.tanggal) }}</p>
           </div>
+          <p class="text-[14px] font-bold text-[#1B5E20]">{{ formatRupiah(item.nominal) }}</p>
         </div>
       </div>
     </div>

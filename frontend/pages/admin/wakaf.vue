@@ -133,8 +133,8 @@ const handlePhotoUpload = () => {
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h1 class="text-lg font-bold text-gray-800">Manajemen Aset Wakaf</h1>
-        <p class="text-[13px] text-gray-400 mt-0.5">Pendataan, monitoring, dan galeri aset persyarikatan.</p>
+        <h1 class="text-lg font-bold text-gray-800">Wakaf</h1>
+        <p class="text-[13px] text-gray-400 mt-0.5">Kelola data dan galeri aset</p>
       </div>
       <button
         @click="openAddModal"

@@ -152,6 +152,11 @@ onMounted(() => {
 
 <template>
   <div class="max-w-xl mx-auto space-y-4 pb-10">
+    <!-- Header -->
+    <div class="mb-2">
+      <h1 class="text-lg font-bold text-gray-800">Keuangan</h1>
+      <p class="text-[13px] text-gray-400 mt-0.5">Catat & pantau arus kas unit</p>
+    </div>
 
     <!-- Pilih Unit (Khusus Superadmin) -->
     <div v-if="userRole === 'superadmin'" class="bg-white rounded-[16px] border border-gray-50 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] px-4 py-3.5 mb-2">

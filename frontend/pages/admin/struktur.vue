@@ -90,8 +90,8 @@ const deleteStruktur = (id: string) => {
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h1 class="text-lg font-bold text-gray-800">Kelola Data Keanggotaan</h1>
-        <p class="text-[13px] text-gray-400 mt-0.5">Pendataan anggota Ranting dan PCM.</p>
+        <h1 class="text-lg font-bold text-gray-800">Keanggotaan</h1>
+        <p class="text-[13px] text-gray-400 mt-0.5">Daftar anggota ranting & PCM</p>
       </div>
       <button
         @click="openAddModal"

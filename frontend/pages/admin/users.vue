@@ -101,8 +101,8 @@ const deleteUser = (id: string) => {
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h1 class="text-lg font-bold text-gray-800">Kelola Pengguna</h1>
-        <p class="text-[13px] text-gray-400 mt-0.5">Manajemen akses 9 akun Admin dan Superadmin.</p>
+        <h1 class="text-lg font-bold text-gray-800">Pengguna</h1>
+        <p class="text-[13px] text-gray-400 mt-0.5">9 admin AUM & 1 superadmin</p>
       </div>
       <button
         @click="openAddModal"

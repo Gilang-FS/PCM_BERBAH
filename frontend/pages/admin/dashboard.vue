@@ -143,7 +143,7 @@ const wakafTerbaru = ref([
     <!-- Header -->
     <div>
       <h1 class="text-lg font-bold text-gray-800">Home</h1>
-      <p class="text-[13px] text-gray-400 mt-0.5">Ringkasan kinerja keuangan dan aset wakaf.</p>
+      <p class="text-[13px] text-gray-400 mt-0.5">Ringkasan data keuangan & aset</p>
     </div>
 
     <!-- Filter & Action Bar -->

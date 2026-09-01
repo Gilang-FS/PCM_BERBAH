@@ -52,10 +52,37 @@ const formatRupiah = (num: number) => 'Rp ' + new Intl.NumberFormat('id-ID').for
 const formatTanggal = (str: string) => new Date(str).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
 
 // 4. Konfigurasi Grafik (ApexCharts)
-const chartOptions = computed(() => {
-  // Ambil tanggal-tanggal unik yang ada transaksinya
-  const dates = [...new Set(filteredData.value.map(item => item.tanggal))].sort()
+const formatBulan = (str: string) => {
+  const [yyyy, mm] = str.split('-')
+  const date = new Date(Number(yyyy), Number(mm) - 1, 1)
+  return date.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' })
+}
+
+const chartDataAgregat = computed(() => {
+  const isHarian = filterPeriode.value === 'harian'
   
+  // Mapping data ke bentuk { label: string, pemasukan: number, pengeluaran: number }
+  const grouped = filteredData.value.reduce((acc, item) => {
+    // Jika harian, group by YYYY-MM-DD. Jika bulanan/6_bulanan, group by YYYY-MM
+    const key = isHarian ? item.tanggal : item.tanggal.substring(0, 7)
+    
+    if (!acc[key]) {
+      acc[key] = { label: isHarian ? formatTanggal(item.tanggal) : formatBulan(key), pemasukan: 0, pengeluaran: 0 }
+    }
+    
+    if (item.tipe === 'pemasukan') acc[key].pemasukan += item.nominal
+    else acc[key].pengeluaran += item.nominal
+      
+    return acc
+  }, {} as Record<string, { label: string, pemasukan: number, pengeluaran: number }>)
+
+  // Sort keys (YYYY-MM-DD atau YYYY-MM) secara ascending
+  const sortedKeys = Object.keys(grouped).sort()
+  return sortedKeys.map(k => grouped[k])
+})
+
+const chartOptions = computed(() => {
+  const labels = chartDataAgregat.value.map(d => d.label)
   return {
     chart: {
       type: 'area',
@@ -67,9 +94,13 @@ const chartOptions = computed(() => {
     dataLabels: { enabled: false },
     stroke: { curve: 'smooth', width: 2 },
     xaxis: {
-      categories: dates.length ? dates.map(d => formatTanggal(d)) : ['Belum ada data'],
+      categories: labels.length ? labels : ['Belum ada data'],
       tooltip: { enabled: false },
-      labels: { style: { colors: '#9CA3AF', fontSize: '10px' } }
+      labels: { 
+        style: { colors: '#9CA3AF', fontSize: '10px' },
+        rotate: -45,
+        hideOverlappingLabels: true
+      }
     },
     yaxis: {
       labels: {
@@ -90,25 +121,12 @@ const chartOptions = computed(() => {
 })
 
 const chartSeries = computed(() => {
-  const dates = [...new Set(filteredData.value.map(item => item.tanggal))].sort()
-  
-  if (dates.length === 0) return [{ name: 'Pemasukan', data: [0] }, { name: 'Pengeluaran', data: [0] }]
-
-  const pemasukanData = dates.map(date => {
-    return filteredData.value
-      .filter(item => item.tanggal === date && item.tipe === 'pemasukan')
-      .reduce((sum, item) => sum + item.nominal, 0)
-  })
-  
-  const pengeluaranData = dates.map(date => {
-    return filteredData.value
-      .filter(item => item.tanggal === date && item.tipe === 'pengeluaran')
-      .reduce((sum, item) => sum + item.nominal, 0)
-  })
+  const data = chartDataAgregat.value
+  if (data.length === 0) return [{ name: 'Pemasukan', data: [0] }, { name: 'Pengeluaran', data: [0] }]
 
   return [
-    { name: 'Pemasukan', data: pemasukanData },
-    { name: 'Pengeluaran', data: pengeluaranData }
+    { name: 'Pemasukan', data: data.map(d => d.pemasukan) },
+    { name: 'Pengeluaran', data: data.map(d => d.pengeluaran) }
   ]
 })
 
@@ -178,12 +196,10 @@ const wakafTerbaru = ref([
       <div class="grid grid-cols-2 gap-4">
         <!-- Pemasukan -->
         <div class="bg-white rounded-[20px] px-5 py-4 border border-gray-100 shadow-sm relative overflow-hidden">
-          <div class="flex items-center gap-3 mb-2">
-            <div class="w-8 h-8 rounded-xl bg-green-50 flex items-center justify-center">
-              <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
-              </svg>
-            </div>
+          <div class="flex items-center gap-2 mb-2">
+            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+            </svg>
             <p class="text-[12px] font-medium text-gray-500">Pemasukan</p>
           </div>
           <p class="text-[18px] font-bold text-gray-900 mt-2">{{ formatRupiah(ringkasan.totalPemasukan) }}</p>
@@ -191,12 +207,10 @@ const wakafTerbaru = ref([
 
         <!-- Pengeluaran -->
         <div class="bg-white rounded-[20px] px-5 py-4 border border-gray-100 shadow-sm relative overflow-hidden">
-          <div class="flex items-center gap-3 mb-2">
-            <div class="w-8 h-8 rounded-xl bg-red-50 flex items-center justify-center">
-              <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
-              </svg>
-            </div>
+          <div class="flex items-center gap-2 mb-2">
+            <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+            </svg>
             <p class="text-[12px] font-medium text-gray-500">Pengeluaran</p>
           </div>
           <p class="text-[18px] font-bold text-gray-900 mt-2">{{ formatRupiah(ringkasan.totalPengeluaran) }}</p>
@@ -291,10 +305,12 @@ const wakafTerbaru = ref([
             </svg>
           </div>
           <div class="flex-1 min-w-0">
-            <p class="text-[14px] font-bold text-gray-800 truncate">{{ item.jenisAset }}</p>
-            <p class="text-[11px] text-gray-400 mt-0.5 truncate">{{ formatTanggal(item.tanggal) }}</p>
+            <h3 class="text-[13px] font-bold text-gray-800 truncate">{{ item.jenisAset }}</h3>
+            <p class="text-[11px] text-gray-500 mt-0.5 truncate">{{ item.lokasi }}</p>
           </div>
-          <p class="text-[14px] font-bold text-[#1B5E20]">{{ formatRupiah(item.nominal) }}</p>
+          <div class="text-right shrink-0">
+            <p class="text-[14px] font-bold text-green-600">{{ formatRupiah(item.nominal) }}</p>
+          </div>
         </div>
       </div>
     </div>

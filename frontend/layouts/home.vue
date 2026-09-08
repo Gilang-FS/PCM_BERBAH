@@ -2,7 +2,7 @@
   <div class="public-site flex min-h-screen flex-col bg-[#f3f1ea] font-publicSans text-[#252b28]">
     <a href="#main-content" class="fixed left-4 top-4 z-[100] -translate-y-24 rounded-[6px] bg-white px-4 py-2 font-bold text-[#144a18] shadow-lg transition-transform focus:translate-y-0">Lewati ke konten utama</a>
     <NavBar />
-    <main id="main-content" tabindex="-1" class="mx-auto my-4 w-[calc(100%-2rem)] max-w-6xl flex-1 overflow-hidden rounded-[10px] border border-[#dedbd1] bg-white sm:my-6 md:w-[calc(100%-4rem)] lg:my-8 lg:w-[calc(100%-6rem)] xl:w-full">
+    <main id="main-content" tabindex="-1" class="flex-1">
       <slot />
     </main>
     <AppFooter />

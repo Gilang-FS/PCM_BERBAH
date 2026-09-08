@@ -1,42 +1,48 @@
 <template>
-  <!-- Sticky Navbar -->
   <header
-    class="fixed top-0 left-0 right-0 z-50 bg-white transition-shadow duration-300"
-    :class="isScrolled ? 'shadow-md' : 'border-b border-gray-100'"
+    class="fixed left-0 right-0 top-0 z-50 border-b border-[#dedbd1] bg-white/95 backdrop-blur-sm"
   >
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
+    <div class="mx-auto max-w-7xl px-6 sm:px-8 lg:px-16">
+      <div class="flex items-center justify-between h-[76px]">
 
         <!-- Logo + Brand -->
-        <NuxtLink to="/" class="flex items-center gap-3 group">
+        <NuxtLink
+          to="/"
+          class="flex min-w-0 items-center gap-3 rounded-[6px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1B5E20] focus-visible:ring-offset-2 sm:gap-3.5"
+          aria-label="Pimpinan Cabang Muhammadiyah Berbah"
+        >
           <img
             src="/images/logos/logo-muhammadiyah.png"
-            alt="Logo PCM Berbah"
-            class="w-9 h-9 object-contain"
+            alt="Logo Muhammadiyah"
+            width="44"
+            height="44"
+            class="h-11 w-11 shrink-0 object-contain"
           />
-          <div class="flex flex-col leading-tight">
-            <span class="text-[13px] font-bold tracking-[0.12em] text-[#1B5E20] uppercase">
+          <div class="min-w-0 leading-[1.35]">
+            <span class="sm:hidden text-[13px] font-bold tracking-[0.08em] text-[#144a18] uppercase">
               PCM Berbah
             </span>
-            <span class="text-[9px] tracking-widest text-gray-400 uppercase hidden sm:block">
-              Muhammadiyah
-            </span>
+            <div class="hidden text-[12px] font-bold uppercase tracking-[0.085em] text-[#144a18] sm:block lg:text-[13px]">
+              <span class="block whitespace-nowrap">Pimpinan Cabang</span>
+              <span class="block whitespace-nowrap">Muhammadiyah Berbah</span>
+            </div>
           </div>
         </NuxtLink>
 
         <!-- Nav Desktop -->
-        <nav class="hidden md:flex items-center gap-1">
+        <nav class="hidden items-center gap-1 lg:flex">
           <NuxtLink
             v-for="item in navItems"
             :key="item.to"
             :to="item.to"
-            class="relative px-4 py-2 text-[13.5px] font-medium text-gray-600 hover:text-[#1B5E20] transition-colors duration-200 group"
-            :class="{ 'text-[#1B5E20]': $route.path === item.to }"
+            :aria-current="$route.path === item.to ? 'page' : undefined"
+            class="group relative rounded-[6px] px-7 py-3 text-[16px] font-semibold text-gray-700 transition-colors hover:text-[#144a18] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1B5E20]"
+            :class="{ 'text-[#144a18]': $route.path === item.to }"
           >
             {{ item.label }}
             <!-- Garis bawah aktif -->
             <span
-              class="absolute bottom-0 left-4 right-4 h-[2px] bg-[#1B5E20] rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-200 origin-center"
+              class="absolute bottom-1 left-7 right-7 h-[2px] origin-center scale-x-0 bg-[#144a18] transition-transform group-hover:scale-x-100"
               :class="{ 'scale-x-100': $route.path === item.to }"
             ></span>
           </NuxtLink>
@@ -47,16 +53,20 @@
           <!-- Login -->
           <NuxtLink
             to="/login"
-            class="hidden md:inline-flex items-center px-5 py-2 text-[13px] font-semibold text-white bg-[#1B5E20] rounded-lg hover:bg-[#145218] active:scale-[0.97] transition-all duration-200 shadow-sm tracking-wide"
+            class="hidden items-center rounded-[10px] border border-[#145218] bg-[#144a18] px-5 py-2 text-[16px] font-semibold text-white transition-colors hover:bg-[#145218] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1B5E20] focus-visible:ring-offset-2 lg:inline-flex"
           >
             Login
           </NuxtLink>
 
           <!-- Hamburger Button (Mobile) -->
           <button
+            ref="menuButton"
             @click="toggleMenu"
-            class="md:hidden flex flex-col justify-center items-center w-9 h-9 gap-[5px] focus:outline-none"
-            aria-label="Toggle menu"
+            type="button"
+            class="flex h-11 w-11 flex-col items-center justify-center gap-[5px] rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1B5E20] focus-visible:ring-offset-2 lg:hidden"
+            :aria-label="isMenuOpen ? 'Tutup menu navigasi' : 'Buka menu navigasi'"
+            :aria-expanded="isMenuOpen"
+            aria-controls="mobile-navigation"
           >
             <span
               class="block w-5 h-[1.5px] bg-gray-700 rounded transition-all duration-300"
@@ -79,31 +89,30 @@
     <!-- Mobile Menu Dropdown -->
     <transition name="slide-down">
       <div
+        id="mobile-navigation"
         v-if="isMenuOpen"
-        class="md:hidden bg-white border-t border-gray-100 shadow-lg"
+        @keydown.esc="closeMenu(true)"
+        class="absolute left-0 right-0 top-[76px] max-h-[calc(100dvh-76px)] overflow-y-auto border-b border-t border-gray-200 border-b-[#dedbd1] bg-white shadow-[0_10px_24px_rgba(31,41,36,0.08)] lg:hidden"
       >
-        <nav class="flex flex-col px-4 py-3 gap-1">
+        <nav class="flex flex-col px-5 py-2">
           <NuxtLink
             v-for="item in navItems"
             :key="item.to"
             :to="item.to"
-            @click="closeMenu"
-            class="flex items-center gap-3 px-3 py-3 text-[14px] font-medium text-gray-600 hover:text-[#1B5E20] hover:bg-green-50 rounded-lg transition-all duration-200"
-            :class="{ 'text-[#1B5E20] bg-green-50': $route.path === item.to }"
+            :aria-current="$route.path === item.to ? 'page' : undefined"
+            @click="closeMenu()"
+            class="flex items-center border-b border-gray-100 px-1 py-3 text-[14px] font-semibold text-gray-700 hover:text-primary-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#1B5E20]"
+            :class="{ 'text-primary-900': $route.path === item.to }"
           >
-            <span
-              class="w-1.5 h-1.5 rounded-full bg-[#1B5E20] transition-opacity"
-              :class="$route.path === item.to ? 'opacity-100' : 'opacity-0'"
-            ></span>
             {{ item.label }}
           </NuxtLink>
 
           <!-- Login Mobile -->
-          <div class="pt-2 pb-1">
+          <div class="py-3">
             <NuxtLink
               to="/login"
-              @click="closeMenu"
-              class="block w-full text-center py-3 text-[13.5px] font-semibold text-white bg-[#1B5E20] rounded-lg hover:bg-[#145218] transition-colors duration-200"
+              @click="closeMenu()"
+              class="flex w-full justify-center bg-primary-900 py-3 text-[14px] font-bold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white"
             >
               Login
             </NuxtLink>
@@ -114,14 +123,14 @@
   </header>
 
   <!-- Spacer agar konten tidak tertutup navbar -->
-  <div class="h-16"></div>
+  <div class="h-[76px]"></div>
 </template>
 
 <script setup lang="ts">
 const route = useRoute()
 
 const isMenuOpen = ref(false)
-const isScrolled = ref(false)
+const menuButton = ref<HTMLButtonElement | null>(null)
 
 const navItems = [
   { to: '/', label: 'Beranda' },
@@ -134,25 +143,14 @@ const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value
 }
 
-const closeMenu = () => {
+const closeMenu = (restoreFocus = false) => {
   isMenuOpen.value = false
+  if (restoreFocus) nextTick(() => menuButton.value?.focus())
 }
 
 // Tutup menu saat route berubah
 watch(() => route.path, () => closeMenu())
 
-// Deteksi scroll untuk shadow navbar
-onMounted(() => {
-  window.addEventListener('scroll', handleScroll)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll)
-})
-
-const handleScroll = () => {
-  isScrolled.value = window.scrollY > 10
-}
 </script>
 
 <style scoped>

@@ -1,293 +1,378 @@
 <template>
-  <div class="min-h-screen bg-[#EDEEE8] flex items-center justify-center">
-    <div
-      class="relative w-full max-w-[390px] min-h-screen bg-[#EDEEE8] overflow-hidden flex flex-col"
-    >
-      <!-- Blob kiri atas -->
-      <svg
-        class="absolute -top-10 -left-10 w-52 h-52 opacity-70"
-        viewBox="0 0 400 400"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          fill="#9DC4A0"
-          d="M80,-120C100,-95,108,-65,115,-35C122,-5,128,25,118,52C108,79,82,103,52,118C22,133,-12,139,-44,128C-76,117,-106,89,-122,55C-138,21,-140,-19,-128,-54C-116,-89,-90,-119,-60,-130C-30,-141,0,-133,30,-120C60,-107,60,-145,80,-120Z"
-          transform="translate(100 200)"
-        />
-      </svg>
+  <main class="login-page min-h-screen bg-white font-publicSans text-[#252b28]">
+    <div class="grid min-h-screen w-full bg-white lg:grid-cols-2">
+      <section class="brand-panel relative isolate flex min-h-[250px] overflow-hidden bg-[#1B5E20] text-white sm:min-h-[320px] lg:min-h-0">
+        <div class="absolute inset-0 -z-30 bg-[linear-gradient(145deg,#0c6b48_0%,#145c32_48%,#0d4527_100%)]"></div>
+        <div class="brand-grid absolute inset-0 -z-20"></div>
+        <div class="absolute -left-32 -top-36 -z-10 h-[30rem] w-[30rem] rounded-full border border-white/[0.07]"></div>
+        <div class="absolute -left-20 -top-24 -z-10 h-[22rem] w-[22rem] rounded-full border border-white/[0.06]"></div>
+        <div class="absolute -bottom-52 -right-48 -z-10 h-[34rem] w-[34rem] rounded-full bg-white/[0.035]"></div>
+        <div class="absolute bottom-0 left-0 right-0 -z-10 h-px bg-white/15"></div>
 
-      <!-- Lingkaran kecil kanan atas -->
-      <div
-        class="absolute top-12 right-8 w-10 h-10 rounded-full bg-[#B5CEB7] opacity-60"
-      ></div>
+        <div class="flex w-full items-center justify-center px-6 py-6 text-center sm:px-12 sm:py-10 lg:px-16">
+          <div class="flex max-w-[430px] flex-col items-center">
+            <img src="/images/logos/logo-muhammadiyah-white.png" alt="Logo Muhammadiyah" class="h-16 w-16 object-contain sm:h-24 sm:w-24 lg:h-28 lg:w-28" />
+            <p class="mt-2.5 text-[13px] font-bold uppercase tracking-[0.12em] sm:mt-4 sm:text-[15px]">PCM Berbah</p>
+            <p class="mt-0.5 text-[9px] uppercase tracking-[0.16em] text-white/70 sm:mt-1 sm:text-[10px]">Portal Pengurus</p>
 
-      <!-- Blob kanan bawah -->
-      <svg
-        class="absolute -bottom-6 -right-6 w-48 h-48 opacity-60"
-        viewBox="0 0 400 400"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          fill="#9DC4A0"
-          d="M70.5,-90.7C87.9,-74.5,96.3,-47.9,98.3,-21.8C100.3,4.3,95.9,30,83.1,50.3C70.3,70.6,49.1,85.5,25.8,91.3C2.5,97.1,-22.9,93.8,-44.2,82.1C-65.5,70.4,-82.7,50.3,-90.5,26.8C-98.3,3.3,-96.7,-23.6,-85.6,-45.1C-74.5,-66.6,-53.9,-82.7,-32,-91.2C-10.1,-99.7,13.1,-100.6,34.8,-96.4C56.5,-92.2,53.1,-107,70.5,-90.7Z"
-          transform="translate(220 210)"
-        />
-      </svg>
+            <span class="my-3 h-px w-10 bg-white/50 sm:my-6 sm:w-12"></span>
 
-      <!-- Konten utama -->
-      <div
-        class="relative z-10 flex flex-col items-center px-10 pt-20 pb-6 flex-1"
-      >
-        <!-- Logo Muhammadiyah -->
-        <div class="w-20 h-20 mb-5">
-          <img
-            src="/images/logos/logo-muhammadiyah.png"
-            alt="Logo Muhammadiyah"
-            class="w-full h-full object-contain"
-            onerror="
-              this.style.display = 'none';
-              this.nextElementSibling.style.display = 'flex';
-            "
-          />
-          <!-- Fallback jika logo belum ada -->
-          <div
-            class="w-20 h-20 bg-[#1B5E20] rounded-full items-center justify-center text-white font-bold text-lg hidden"
-            style="display: none"
-          >
-            ☘
+            <h1 class="font-serif text-[28px] font-semibold leading-tight sm:text-[40px] lg:text-[46px]">Selamat datang</h1>
+            <p class="mt-1.5 max-w-[310px] text-[11px] leading-5 text-white/85 sm:mt-3 sm:max-w-[380px] sm:text-[14px] sm:leading-6 lg:text-[15px]">
+              Kelola informasi organisasi, keuangan, dan aset wakaf dalam satu ruang kerja.
+            </p>
           </div>
         </div>
+      </section>
 
-        <!-- Judul -->
-        <h1
-          class="welcome-title text-[2.6rem] font-bold tracking-[0.22em] text-gray-800 uppercase mt-1 leading-none"
-        >
-          WELCOME
-        </h1>
-        <p
-          class="text-[12.5px] text-gray-500 mt-3 text-center leading-relaxed tracking-wide"
-        >
-          Enter your credentials to access the portal
-        </p>
+      <section class="relative flex min-h-[620px] bg-[#fffefc] px-6 py-12 sm:px-12 lg:min-h-screen lg:px-16 xl:px-24">
+        <NuxtLink to="/" class="group absolute left-6 top-6 inline-flex items-center gap-2 text-[11px] font-medium text-[#8a918c] transition-colors hover:text-[#1B5E20] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1B5E20] sm:left-8 sm:top-8">
+          <svg class="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 12H5m5 5l-5-5 5-5" />
+          </svg>
+          Kembali ke situs publik
+        </NuxtLink>
 
-        <!-- Form -->
-        <form class="w-full mt-14 space-y-5" @submit.prevent="handleLogin">
-          <!-- Username -->
-          <div>
-            <label
-              class="block text-[10.5px] font-bold tracking-[0.18em] text-[#1B5E20] uppercase mb-2"
-            >
-              USERNAME
-            </label>
-            <div
-              class="flex items-center bg-white border border-gray-100 rounded-2xl px-4 py-3.5 shadow-sm gap-3 transition-all focus-within:border-[#1B5E20] focus-within:shadow-md"
-            >
-              <!-- Mail icon -->
-              <svg
-                class="w-4 h-4 text-gray-300 shrink-0"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="1.5"
-                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+          <div class="mx-auto my-auto w-full max-w-[390px] pt-8">
+            <div class="text-center">
+              <h2 class="text-[32px] font-extrabold leading-[1.15] tracking-[-0.01em] text-[#252b28] sm:text-[36px]">Masuk</h2>
+            </div>
+
+          <form class="mt-9 space-y-4" novalidate @submit.prevent="handleLogin">
+            <div>
+              <label for="username" class="sr-only">Username</label>
+              <div class="field-shell" :class="{ 'field-shell--error': fieldErrors.username }">
+                <svg class="h-[18px] w-[18px] shrink-0 text-[#879189]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M20 21a8 8 0 00-16 0m8-10a4 4 0 100-8 4 4 0 000 8z" />
+                </svg>
+                <input
+                  id="username"
+                  ref="usernameInput"
+                  v-model="username"
+                  name="username"
+                  type="text"
+                  autocomplete="username"
+                  autocapitalize="none"
+                  spellcheck="false"
+                  placeholder="Username"
+                  class="min-w-0 flex-1 bg-transparent text-sm text-[#252b28] outline-none placeholder:text-[#a7ada9]"
+                  :aria-invalid="Boolean(fieldErrors.username)"
+                  :aria-describedby="fieldErrors.username ? 'username-error' : undefined"
+                  @input="clearFieldError('username')"
+                  @blur="validateField('username')"
                 />
-              </svg>
-              <input
-                v-model="username"
-                id="username"
-                type="text"
-                placeholder="Contoh: superadmin"
-                class="flex-1 text-sm text-gray-600 placeholder-gray-300 bg-transparent outline-none"
-              />
+              </div>
+              <p id="username-error" class="mt-1.5 min-h-[18px] text-[11px] font-medium leading-[18px] text-red-600" aria-live="polite">{{ fieldErrors.username }}</p>
             </div>
-          </div>
 
-          <!-- Password -->
-          <div>
-            <label
-              class="block text-[10.5px] font-bold tracking-[0.18em] text-gray-500 uppercase mb-2"
-            >
-              Password
-            </label>
-            <div
-              class="flex items-center bg-white border border-gray-100 rounded-2xl px-4 py-3.5 shadow-sm gap-3 transition-all focus-within:border-[#1B5E20] focus-within:shadow-md"
-            >
-              <!-- Lock icon -->
-              <svg
-                class="w-4 h-4 text-gray-300 shrink-0"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="1.5"
-                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+            <div>
+              <label for="password" class="sr-only">Password</label>
+              <div class="field-shell" :class="{ 'field-shell--error': fieldErrors.password }">
+                <svg class="h-[18px] w-[18px] shrink-0 text-[#879189]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M7 10V8a5 5 0 0110 0v2m-11 0h12a2 2 0 012 2v7a2 2 0 01-2 2H6a2 2 0 01-2-2v-7a2 2 0 012-2z" />
+                </svg>
+                <input
+                  id="password"
+                  ref="passwordInput"
+                  v-model="password"
+                  name="password"
+                  :type="showPassword ? 'text' : 'password'"
+                  autocomplete="current-password"
+                  placeholder="Password"
+                  class="min-w-0 flex-1 bg-transparent text-sm text-[#252b28] outline-none placeholder:text-[#a7ada9]"
+                  :aria-invalid="Boolean(fieldErrors.password)"
+                  :aria-describedby="fieldErrors.password ? 'password-error' : undefined"
+                  @input="clearFieldError('password')"
+                  @blur="validateField('password')"
                 />
-              </svg>
-              <input
-                v-model="password"
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                class="flex-1 text-sm text-gray-600 placeholder-gray-400 bg-transparent outline-none"
-              />
+                <button
+                  type="button"
+                  class="-mr-1 flex h-8 w-8 shrink-0 items-center justify-center text-[#7c867e] transition hover:bg-[#f0f1ed] hover:text-[#1B5E20] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1B5E20]/30"
+                  :aria-label="showPassword ? 'Sembunyikan password' : 'Tampilkan password'"
+                  :aria-pressed="showPassword"
+                  @click="showPassword = !showPassword"
+                >
+                  <svg v-if="!showPassword" class="h-[18px] w-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z" />
+                    <circle cx="12" cy="12" r="2.5" stroke-width="1.7" />
+                  </svg>
+                  <svg v-else class="h-[18px] w-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M3 3l18 18M10.6 6.2A10.6 10.6 0 0112 6c6 0 9.5 6 9.5 6a16.8 16.8 0 01-2.2 2.8M6.2 6.2C3.8 8 2.5 12 2.5 12s3.5 6 9.5 6a9.7 9.7 0 003.2-.5M9.9 9.9a3 3 0 004.2 4.2" />
+                  </svg>
+                </button>
+              </div>
+              <p id="password-error" class="mt-1.5 min-h-[18px] text-[11px] font-medium leading-[18px] text-red-600" aria-live="polite">{{ fieldErrors.password }}</p>
             </div>
-          </div>
 
-          <!-- Remember me + Forgot -->
-          <div class="flex items-center justify-between pt-1">
-            <label
-              class="flex items-center gap-2 text-[11.5px] text-gray-400 cursor-pointer select-none"
-            >
-              <input
-                type="checkbox"
-                v-model="remember"
-                class="w-3.5 h-3.5 rounded border-gray-300 accent-[#1B5E20] cursor-pointer"
-              />
-              Remember me
-            </label>
-            <a
-              href="#"
-              class="text-[11.5px] text-[#1B5E20] font-semibold hover:underline"
-              >Forgot password?</a
-            >
-          </div>
-
-          <!-- Pesan error -->
-          <transition name="fade">
-            <div
-              v-if="errorMessage"
-              class="text-red-500 text-xs text-center bg-red-50 py-2.5 px-4 rounded-xl border border-red-100"
-            >
-              {{ errorMessage }}
+            <div class="flex items-center justify-between gap-4 pt-1">
+              <label class="group flex cursor-pointer select-none items-center gap-2.5 text-[12px] text-[#667068]">
+                <input v-model="remember" type="checkbox" class="peer sr-only" />
+                <span class="flex h-[18px] w-[18px] items-center justify-center border border-[#c4c9c5] bg-white transition group-hover:border-[#7da180] peer-checked:border-[#1B5E20] peer-checked:bg-[#1B5E20] peer-focus-visible:ring-2 peer-focus-visible:ring-[#1B5E20]/30 peer-focus-visible:ring-offset-2">
+                  <svg class="h-3 w-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 12l4 4L19 6" />
+                  </svg>
+                </span>
+                Ingat saya
+              </label>
+              <button
+                type="button"
+                class="text-[12px] font-bold text-[#1B5E20] transition hover:text-[#145218] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1B5E20]/30"
+                :aria-expanded="showHelp"
+                aria-controls="login-help"
+                @click="showHelp = !showHelp"
+              >
+                Butuh bantuan?
+              </button>
             </div>
-          </transition>
 
-          <!-- Tombol Sign In -->
-          <div class="pt-5">
+            <div class="min-h-[82px]">
+              <Transition name="message" mode="out-in">
+                <div v-if="showHelp" id="login-help" key="login-help" class="feedback-panel flex gap-3 border border-[#d8dfd5] bg-[#f4f6f1] px-4 py-3.5 text-[11px] leading-5 text-[#5e6961]">
+                  <svg class="mt-0.5 h-4 w-4 shrink-0 text-[#1b6a3b]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 17h.01M9.1 9a3 3 0 115.4 1.8c-.9 1.2-2.5 1.5-2.5 3.2M12 22a10 10 0 100-20 10 10 0 000 20z" />
+                  </svg>
+                  <p>Hubungi Superadmin PCM Berbah untuk aktivasi akun atau pengaturan ulang password.</p>
+                </div>
+
+                <div v-else-if="errorMessage" id="login-error" key="login-error" role="alert" aria-live="assertive" class="feedback-panel flex items-start gap-3 rounded-[5px] border border-red-200 bg-red-50 px-4 py-3.5 text-[12px] leading-5 text-red-700">
+                  <svg class="mt-0.5 h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 9v4m0 4h.01M10.3 3.8L2.4 17.5A2 2 0 004.1 20h15.8a2 2 0 001.7-2.5L13.7 3.8a2 2 0 00-3.4 0z" />
+                  </svg>
+                  <p>{{ errorMessage }}</p>
+                </div>
+
+                <div v-else-if="rateLimitMessage" id="rate-limit-error" key="rate-limit-error" role="alert" aria-live="assertive" class="feedback-panel flex items-start gap-3 rounded-[5px] border border-orange-200 bg-orange-50 px-4 py-3.5 text-[12px] leading-5 text-orange-700">
+                  <svg class="mt-0.5 h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  <p>{{ rateLimitMessage }}</p>
+                </div>
+
+              </Transition>
+            </div>
+
             <button
               type="submit"
               :disabled="isLoading"
-              class="w-full bg-[#1B5E20] text-white py-4 rounded-full text-sm font-light tracking-[0.2em] hover:bg-[#145218] active:scale-[0.97] transition-all disabled:opacity-60 shadow-lg shadow-green-900/20"
+              class="group mx-auto flex min-h-[48px] w-full items-center justify-center gap-2.5 rounded-[5px] bg-[#1B5E20] px-7 py-3 text-[13px] font-bold text-white shadow-[0_5px_14px_rgba(27,94,32,0.2)] transition duration-200 hover:bg-[#145218] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1B5E20] focus-visible:ring-offset-3 disabled:cursor-not-allowed disabled:opacity-65 sm:w-auto sm:min-w-[150px]"
             >
-              <span
-                v-if="isLoading"
-                class="flex items-center justify-center gap-2"
-              >
-                <svg
-                  class="animate-spin w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    class="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="white"
-                    stroke-width="4"
-                  ></circle>
-                  <path
-                    class="opacity-75"
-                    fill="white"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-                signing in...
-              </span>
-              <span v-else>sign in</span>
+              <svg v-if="isLoading" class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                <circle class="opacity-25" cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" />
+                <path class="opacity-80" fill="currentColor" d="M12 3a9 9 0 00-9 9h3a6 6 0 016-6V3z" />
+              </svg>
+              <span>{{ isLoading ? 'Memeriksa...' : 'Masuk' }}</span>
             </button>
+          </form>
+
+          <div class="mt-10 flex items-center justify-center gap-2 border-t border-[#e1e3e0] pt-6 text-center text-[11px] leading-5 text-[#858c87]">
+            <svg class="h-4 w-4 shrink-0 text-[#1B5E20]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M12 22s8-3.5 8-10V5l-8-3-8 3v7c0 6.5 8 10 8 10zM9 12l2 2 4-4" />
+            </svg>
+            <p>Akses khusus pengurus terdaftar.</p>
           </div>
-        </form>
 
-        <!-- Hint Kredensial -->
-        <div class="mt-6 w-full bg-white/70 border border-gray-100 rounded-2xl px-4 py-3 text-[11px] text-gray-500 space-y-1">
-          <p class="font-bold text-gray-600 mb-1.5">🔑 Akun untuk testing:</p>
-          <p><span class="font-semibold text-gray-700">superadmin</span> / admin123</p>
-          <p><span class="font-semibold text-gray-700">admin_sd1</span> / admin123</p>
-          <p><span class="font-semibold text-gray-700">admin_smp</span> / admin123</p>
-          <p><span class="font-semibold text-gray-700">admin_smk</span> / admin123</p>
-          <p><span class="font-semibold text-gray-700">admin_ranting</span> / admin123</p>
+          <p class="mt-8 text-center text-[9px] uppercase tracking-[0.13em] text-[#b0b5b1]">
+            &copy; {{ currentYear }} Pimpinan Cabang Muhammadiyah Berbah
+          </p>
         </div>
-      </div>
-
-      <!-- Footer -->
-      <div class="relative z-10 pb-10 text-center">
-        <p class="text-[9.5px] text-gray-400 tracking-[0.25em] uppercase">
-          PCM Berbah Institutional Portal
-        </p>
-      </div>
+      </section>
     </div>
-  </div>
+  </main>
 </template>
 
 <script setup lang="ts">
-definePageMeta({ layout: false });
+import { useToast } from '~/composables/useToast'
 
-const router = useRouter();
+definePageMeta({ layout: false, middleware: ['guest'] })
 
-const username = ref("");
-const password = ref("");
-const remember = ref(false);
-const isLoading = ref(false);
-const errorMessage = ref("");
+useHead({
+  title: 'Masuk ke Portal | PCM Berbah',
+  meta: [
+    { name: 'description', content: 'Masuk ke Sistem Informasi Terpadu Pimpinan Cabang Muhammadiyah Berbah.' },
+    { name: 'robots', content: 'noindex, nofollow' },
+  ],
+})
 
-const USERS: Record<string, { password: string; role: string }> = {
-  superadmin: { password: 'admin123', role: 'superadmin' },
-  admin_sd1:  { password: 'admin123', role: 'admin' },
-  admin_sd2:  { password: 'admin123', role: 'admin' },
-  admin_sd3:  { password: 'admin123', role: 'admin' },
-  admin_sd4:  { password: 'admin123', role: 'admin' },
-  admin_sd5:  { password: 'admin123', role: 'admin' },
-  admin_sd6:  { password: 'admin123', role: 'admin' },
-  admin_smp:  { password: 'admin123', role: 'admin' },
-  admin_smk:  { password: 'admin123', role: 'admin' },
-  admin_ranting: { password: 'admin123', role: 'admin' },
+const router = useRouter()
+const route = useRoute()
+const { login } = useAuth()
+const { success } = useToast()
+
+const usernameInput = ref<HTMLInputElement | null>(null)
+const passwordInput = ref<HTMLInputElement | null>(null)
+const username = ref('')
+const password = ref('')
+const remember = ref(false)
+const showPassword = ref(false)
+const showHelp = ref(false)
+const isLoading = ref(false)
+const errorMessage = ref('')
+const fieldErrors = reactive({ username: '', password: '' })
+const currentYear = new Date().getFullYear()
+const rateLimitMessage = ref('')
+
+onMounted(() => {
+  usernameInput.value?.focus()
+})
+
+const clearFieldError = (field: 'username' | 'password') => {
+  errorMessage.value = ''
+  rateLimitMessage.value = ''
+
+  if (fieldErrors[field]) validateField(field)
+}
+
+const validateField = (field: 'username' | 'password') => {
+  if (field === 'username') {
+    fieldErrors.username = username.value.trim() ? '' : 'Username wajib diisi.'
+    return !fieldErrors.username
+  }
+
+  if (!password.value) {
+    fieldErrors.password = 'Password wajib diisi.'
+  } else {
+    fieldErrors.password = ''
+  }
+
+  return !fieldErrors.password
+}
+
+const validateForm = () => {
+  const isUsernameValid = validateField('username')
+  const isPasswordValid = validateField('password')
+
+  return isUsernameValid && isPasswordValid
 }
 
 const handleLogin = async () => {
-  isLoading.value = true;
-  errorMessage.value = "";
+  if (isLoading.value) return
 
-  await new Promise((resolve) => setTimeout(resolve, 800));
+  errorMessage.value = ''
+  rateLimitMessage.value = ''
 
-  const user = USERS[username.value]
-  if (user && password.value === user.password) {
-    localStorage.setItem('user_role', user.role)
-    localStorage.setItem('user_username', username.value)
-    await router.push('/admin/dashboard')
-  } else {
-    errorMessage.value = 'Username atau password yang Anda masukkan salah.';
+  if (!validateForm()) {
+    await nextTick()
+    const firstInvalidInput = fieldErrors.username ? usernameInput.value : passwordInput.value
+    firstInvalidInput?.focus()
+    return
   }
 
-  isLoading.value = false;
-};
+  isLoading.value = true
+
+  try {
+    await new Promise(resolve => setTimeout(resolve, 650))
+
+    await login(username.value.trim(), password.value, remember.value)
+
+    success('Login berhasil! Mengarahkan ke dashboard...')
+    await router.replace(getSafeRedirect())
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : ''
+    if (message.includes('terkunci')) {
+      rateLimitMessage.value = message
+      showHelp.value = false
+    } else {
+      errorMessage.value = message === 'Username atau password salah'
+        ? 'Username atau password salah. Silakan periksa kembali.'
+        : 'Login belum dapat diproses. Silakan coba kembali beberapa saat lagi.'
+    }
+    password.value = ''
+    await nextTick()
+    passwordInput.value?.focus()
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const getSafeRedirect = () => {
+  const redirect = Array.isArray(route.query.redirect)
+    ? route.query.redirect[0]
+    : route.query.redirect
+
+  return typeof redirect === 'string' && redirect.startsWith('/') && !redirect.startsWith('//')
+    ? redirect
+    : '/admin/dashboard'
+}
 </script>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@300;400;500;600&display=swap");
-
-* {
-  font-family: "Inter", sans-serif;
+.brand-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: linear-gradient(135deg, black, transparent 78%);
+  -webkit-mask-image: linear-gradient(135deg, black, transparent 78%);
 }
 
-.welcome-title {
-  font-family: "Cormorant Garamond", serif;
+.field-shell {
+  display: flex;
+  min-height: 52px;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid #d8dcd7;
+  border-radius: 5px;
+  background: #fff;
+  padding: 0.625rem 0.875rem;
+  box-shadow: 0 1px 2px rgba(23, 35, 27, 0.025);
+  transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
 }
 
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
+.field-shell:hover {
+  border-color: #aeb8af;
 }
 
-.fade-enter-from,
-.fade-leave-to {
+.field-shell:focus-within {
+  border-color: #1b5e20;
+  box-shadow: 0 0 0 3px rgba(27, 94, 32, 0.1);
+}
+
+.field-shell--error {
+  border-color: #ef9a9a;
+  background: #fffdfd;
+}
+
+.field-shell--error:focus-within {
+  border-color: #dc6262;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
+}
+
+.message-enter-active,
+.message-leave-active {
+  transform-origin: top center;
+}
+
+.message-enter-active {
+  transition:
+    opacity 240ms ease-out,
+    transform 300ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 300ms ease-out;
+}
+
+.message-leave-active {
+  transition:
+    opacity 140ms ease-in,
+    transform 160ms ease-in;
+}
+
+.message-enter-from,
+.message-leave-to {
   opacity: 0;
+  transform: translateY(-10px) scale(0.96);
+}
+
+.message-enter-to {
+  box-shadow: 0 8px 22px rgba(27, 94, 32, 0.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-page *,
+  .login-page *::before,
+  .login-page *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 </style>

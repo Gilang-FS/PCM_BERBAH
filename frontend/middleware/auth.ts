@@ -1,20 +1,23 @@
 // Middleware ini akan berjalan setiap kali user mencoba akses halaman /admin/*
-// Jika tidak ada token/role di localStorage, langsung tendang ke /login
+// Jika tidak ada token/role di localStorage, langsung arahkan ke /login.
 
 export default defineNuxtRouteMiddleware((to) => {
   // Hanya jalankan di sisi client (browser), bukan server
   if (import.meta.client) {
-    const userRole = localStorage.getItem('user_role')
+    const token = localStorage.getItem('auth_token')
+    const userRole = localStorage.getItem('auth_role')
 
-    // Jika tidak ada role → redirect ke login
-    if (!userRole) {
+    if (!token || (userRole !== 'admin' && userRole !== 'superadmin')) {
+      return navigateTo({ path: '/login', query: { redirect: to.fullPath } })
+    }
+
+    if (userRole === 'admin' && !localStorage.getItem('auth_aum')) {
       return navigateTo('/login')
     }
 
-    // Jika role adalah 'admin' biasa tapi mencoba akses halaman superadmin
-    const superAdminOnlyRoutes = ['/admin/wakaf', '/admin/struktur', '/admin/users']
-    if (userRole === 'admin' && superAdminOnlyRoutes.includes(to.path)) {
-      return navigateTo('/admin/dashboard')
+    const superAdminOnlyRoutes = ['/admin/wakaf', '/admin/users']
+    if (userRole !== 'superadmin' && superAdminOnlyRoutes.includes(to.path)) {
+      return navigateTo('/admin/forbidden')
     }
   }
 })

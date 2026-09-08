@@ -102,8 +102,6 @@ Tim backend harus membaca dokumen berikut sebelum mulai:
 Keputusan domain utama:
 
 - Total master adalah 12 unit termasuk PCM Berbah.
-- `Klinik PKU Muhammadiyah Berbah` adalah satu unit gabungan.
-- `Lazismu Berbah` adalah unit ke-11.
 - Role hanya `admin` dan `superadmin`.
 - Backend menggunakan server-side session melalui cookie HttpOnly.
 - Server wajib menegakkan role dan scope AUM pada setiap operasi terproteksi.
